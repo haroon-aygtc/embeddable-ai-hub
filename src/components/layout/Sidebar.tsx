@@ -114,8 +114,8 @@ const Sidebar = () => {
         </div>
         <NavItem to="/analytics" icon={<BarChart3 className="h-5 w-5" />} label="Analytics" collapsed={collapsed} />
         <NavItem to="/users" icon={<Users className="h-5 w-5" />} label="User Management" collapsed={collapsed} />
+        <NavItem to="/roles" icon={<Shield className="h-5 w-5" />} label="Roles & Permissions" collapsed={collapsed} />
         <NavItem to="/tenants" icon={<Building className="h-5 w-5" />} label="Multi-Tenant" collapsed={collapsed} />
-        <NavItem to="/security" icon={<Shield className="h-5 w-5" />} label="Security" collapsed={collapsed} />
       </div>
       
       <div className="p-4 border-t border-border">

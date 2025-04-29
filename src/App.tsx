@@ -17,6 +17,9 @@ import BrandingManager from "./pages/BrandingManager";
 import SystemSettings from "./pages/SystemSettings";
 import MultiTenantManager from "./pages/MultiTenantManager";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import RolesPermissions from "./pages/RolesPermissions";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +30,8 @@ const App = () => (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/widget" element={<WidgetPage />} />
@@ -35,6 +40,7 @@ const App = () => (
           <Route path="/prompts" element={<PromptTemplates />} />
           <Route path="/knowledge" element={<KnowledgeBase />} />
           <Route path="/users" element={<UserManagement />} />
+          <Route path="/roles" element={<RolesPermissions />} />
           <Route path="/follow-ups" element={<FollowUpBuilder />} />
           <Route path="/branding" element={<BrandingManager />} />
           <Route path="/settings" element={<SystemSettings />} />

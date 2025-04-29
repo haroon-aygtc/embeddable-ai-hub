@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,10 +40,6 @@ const WidgetBuilder = () => {
   
   // Tab state
   const [activeTab, setActiveTab] = useState("appearance");
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-  };
 
   // Widget template presets
   const applyTemplate = (template: string) => {
@@ -141,7 +136,7 @@ const WidgetBuilder = () => {
         </Card>
         
         {/* Configuration Tabs */}
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-4 mb-4">
             <TabsTrigger value="appearance">
               <Palette className="h-4 w-4 mr-2" />
