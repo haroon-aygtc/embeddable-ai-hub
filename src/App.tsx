@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import WidgetPage from "./pages/WidgetPage";
 import AIModels from "./pages/AIModels";
+import ChatManagement from "./pages/ChatManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/widget" element={<WidgetPage />} />
           <Route path="/ai-models" element={<AIModels />} />
+          <Route path="/chat" element={<ChatManagement />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

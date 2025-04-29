@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import ThemeToggle from './ThemeToggle';
 import { 
   LayoutDashboard, 
   MessageSquare, 
@@ -66,14 +67,16 @@ const Sidebar = () => {
             <MessageSquare className="h-6 w-6 text-primary" />
           </div>
         )}
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="ml-auto" 
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
       
       <Separator />
@@ -82,7 +85,7 @@ const Sidebar = () => {
         <div className="px-3 mb-1 flex items-center">
           {!collapsed && <p className="text-xs font-medium text-muted-foreground mb-2">MAIN</p>}
         </div>
-        <NavItem to="/" icon={<LayoutDashboard className="h-5 w-5" />} label="Dashboard" collapsed={collapsed} />
+        <NavItem to="/dashboard" icon={<LayoutDashboard className="h-5 w-5" />} label="Dashboard" collapsed={collapsed} />
         <NavItem to="/chat" icon={<MessageSquare className="h-5 w-5" />} label="Chat Management" collapsed={collapsed} />
         <NavItem to="/widget" icon={<Code className="h-5 w-5" />} label="Widget Builder" collapsed={collapsed} />
         
