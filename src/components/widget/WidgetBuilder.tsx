@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,7 +18,8 @@ import {
   Sliders,
   Image,
   Bell,
-  FolderOpen
+  FolderOpen,
+  PlusCircle
 } from "lucide-react";
 import WidgetPreview from "./WidgetPreview";
 
@@ -419,7 +419,7 @@ const WidgetBuilder = () => {
                         <Switch />
                       </div>
                       <Button variant="outline" size="sm">
-                        <Plus className="h-4 w-4 mr-2" />
+                        <PlusCircle className="h-4 w-4 mr-2" />
                         Add Custom Field
                       </Button>
                     </div>
