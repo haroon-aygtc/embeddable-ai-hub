@@ -23,7 +23,7 @@ import {
   Tag,
   FileKey,
   Building,
-  SliderHorizontal
+  SlidersHorizontal
 } from 'lucide-react';
 
 interface NavItemProps {

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -234,7 +233,7 @@ const PromptTemplates = () => {
                 rows={8}
               />
               <p className="text-xs text-muted-foreground mt-2">
-                Use {{variable_name}} syntax for dynamic content insertion
+                Use {'{{variable_name}}'} syntax for dynamic content insertion
               </p>
             </div>
           </div>
