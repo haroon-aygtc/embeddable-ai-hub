@@ -9,6 +9,13 @@ import Dashboard from "./pages/Dashboard";
 import WidgetPage from "./pages/WidgetPage";
 import AIModels from "./pages/AIModels";
 import ChatManagement from "./pages/ChatManagement";
+import PromptTemplates from "./pages/PromptTemplates";
+import KnowledgeBase from "./pages/KnowledgeBase";
+import UserManagement from "./pages/UserManagement";
+import FollowUpBuilder from "./pages/FollowUpBuilder";
+import BrandingManager from "./pages/BrandingManager";
+import SystemSettings from "./pages/SystemSettings";
+import MultiTenantManager from "./pages/MultiTenantManager";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +32,13 @@ const App = () => (
           <Route path="/widget" element={<WidgetPage />} />
           <Route path="/ai-models" element={<AIModels />} />
           <Route path="/chat" element={<ChatManagement />} />
+          <Route path="/prompts" element={<PromptTemplates />} />
+          <Route path="/knowledge" element={<KnowledgeBase />} />
+          <Route path="/users" element={<UserManagement />} />
+          <Route path="/follow-ups" element={<FollowUpBuilder />} />
+          <Route path="/branding" element={<BrandingManager />} />
+          <Route path="/settings" element={<SystemSettings />} />
+          <Route path="/tenants" element={<MultiTenantManager />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

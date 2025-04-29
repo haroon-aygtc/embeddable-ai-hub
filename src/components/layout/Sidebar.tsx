@@ -18,7 +18,12 @@ import {
   Shield,
   Brain,
   Code,
-  Users
+  Users,
+  FolderPlus,
+  Tag,
+  FileKey,
+  Building,
+  SliderHorizontal
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -95,10 +100,12 @@ const Sidebar = () => {
         <NavItem to="/ai-models" icon={<Brain className="h-5 w-5" />} label="AI Models" collapsed={collapsed} />
         <NavItem to="/prompts" icon={<FileText className="h-5 w-5" />} label="Prompt Templates" collapsed={collapsed} />
         <NavItem to="/knowledge" icon={<Database className="h-5 w-5" />} label="Knowledge Base" collapsed={collapsed} />
+        <NavItem to="/follow-ups" icon={<FileKey className="h-5 w-5" />} label="Follow-Up Builder" collapsed={collapsed} />
         
         <div className="px-3 mt-6 mb-1 flex items-center">
           {!collapsed && <p className="text-xs font-medium text-muted-foreground mb-2">CUSTOMIZATION</p>}
         </div>
+        <NavItem to="/branding" icon={<Palette className="h-5 w-5" />} label="Branding Manager" collapsed={collapsed} />
         <NavItem to="/appearance" icon={<Palette className="h-5 w-5" />} label="Appearance" collapsed={collapsed} />
         <NavItem to="/behavior" icon={<Wrench className="h-5 w-5" />} label="Behavior" collapsed={collapsed} />
         
@@ -107,6 +114,7 @@ const Sidebar = () => {
         </div>
         <NavItem to="/analytics" icon={<BarChart3 className="h-5 w-5" />} label="Analytics" collapsed={collapsed} />
         <NavItem to="/users" icon={<Users className="h-5 w-5" />} label="User Management" collapsed={collapsed} />
+        <NavItem to="/tenants" icon={<Building className="h-5 w-5" />} label="Multi-Tenant" collapsed={collapsed} />
         <NavItem to="/security" icon={<Shield className="h-5 w-5" />} label="Security" collapsed={collapsed} />
       </div>
       
