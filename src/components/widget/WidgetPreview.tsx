@@ -33,23 +33,25 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   };
 
   return (
-    <div className="ai-widget-container">
+    <div className="ai-widget-container relative w-full h-full">
       {isOpen && (
-        <ChatPreview
-          title={title}
-          subtitle={subtitle}
-          primaryColor={primaryColor}
-          secondaryColor={secondaryColor}
-          botName={botName}
-          welcomeMessage={welcomeMessage}
-          avatar={avatar}
-          onClose={() => setIsOpen(false)}
-          onMinimize={() => setIsOpen(false)}
-        />
+        <div className="absolute bottom-16 right-0 w-80 h-96">
+          <ChatPreview
+            title={title}
+            subtitle={subtitle}
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            botName={botName}
+            welcomeMessage={welcomeMessage}
+            avatar={avatar}
+            onClose={() => setIsOpen(false)}
+            onMinimize={() => setIsOpen(false)}
+          />
+        </div>
       )}
       
       <div 
-        className="ai-widget-button animate-fade-in"
+        className="ai-widget-button absolute bottom-0 right-0 w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-pointer animate-fade-in z-10 transition-all hover:scale-105"
         style={buttonStyle}
         onClick={toggleChat}
       >

@@ -85,7 +85,7 @@ const ChatPreview: React.FC<ChatPreviewProps> = ({
   };
 
   return (
-    <div className="ai-widget-popup shadow-lg flex flex-col rounded-lg overflow-hidden">
+    <div className="ai-widget-popup flex flex-col w-full h-full rounded-lg overflow-hidden shadow-lg border border-border">
       {/* Chat Header */}
       <div 
         className="p-4 text-white flex items-start justify-between"
@@ -121,18 +121,22 @@ const ChatPreview: React.FC<ChatPreviewProps> = ({
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`chat-bubble ${message.sender}`}
+              className={`p-3 rounded-lg max-w-[80%] ${
+                message.sender === "user" 
+                  ? "ml-auto bg-primary text-primary-foreground" 
+                  : "mr-auto bg-muted"
+              }`}
             >
               {message.content}
             </div>
           ))}
           
           {isTyping && (
-            <div className="chat-bubble bot">
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
+            <div className="p-3 rounded-lg max-w-[80%] mr-auto bg-muted">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></span>
+                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-75"></span>
+                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-150"></span>
               </div>
             </div>
           )}
