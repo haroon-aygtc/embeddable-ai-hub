@@ -47,14 +47,14 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   const getPositionClasses = () => {
     switch (position) {
       case "bottom-left":
-        return { button: "bottom-0 left-0", widget: "bottom-16 left-0" };
+        return { button: "bottom-4 left-4", widget: "bottom-20 left-4" };
       case "top-right":
-        return { button: "top-0 right-0", widget: "top-16 right-0" };
+        return { button: "top-4 right-4", widget: "top-20 right-4" };
       case "top-left":
-        return { button: "top-0 left-0", widget: "top-16 left-0" };
+        return { button: "top-4 left-4", widget: "top-20 left-4" };
       case "bottom-right":
       default:
-        return { button: "bottom-0 right-0", widget: "bottom-16 right-0" };
+        return { button: "bottom-4 right-4", widget: "bottom-20 right-4" };
     }
   };
 
@@ -63,7 +63,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   return (
     <div className="ai-widget-container relative w-full h-full">
       {isOpen && (
-        <div className={`absolute ${positionClasses.widget} w-80 h-96 shadow-lg`}>
+        <div className={`absolute ${positionClasses.widget} w-72 h-96 shadow-lg`}>
           <ChatPreview
             title={title}
             subtitle={subtitle}
