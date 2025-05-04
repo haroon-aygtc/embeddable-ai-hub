@@ -1,8 +1,9 @@
 
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageSquare, Palette, Settings, Sliders } from "lucide-react";
+import { MessageSquare, Palette, Settings, Sliders, Download, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 import TemplateSelector from "./TemplateSelector";
 import AppearanceTab from "./tabs/AppearanceTab";
@@ -22,8 +23,20 @@ const WidgetBuilder = () => {
     applyTemplate,
     copied,
     handleCopyCode,
-    generateEmbedCode
+    generateEmbedCode,
+    exportWidgetSettings,
+    handleFileImport
   } = useWidgetState();
+  
+  // Reference to hidden file input for importing settings
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Trigger file input click
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -32,7 +45,36 @@ const WidgetBuilder = () => {
         {/* Template Selection */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4">Widget Templates</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Widget Templates</h3>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={exportWidgetSettings}
+                  className="flex items-center gap-1"
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={triggerFileInput}
+                  className="flex items-center gap-1"
+                >
+                  <Upload className="h-4 w-4" />
+                  <span className="hidden sm:inline">Import</span>
+                </Button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileImport} 
+                  accept=".json" 
+                  className="hidden" 
+                />
+              </div>
+            </div>
             <TemplateSelector 
               templates={widgetTemplates} 
               onSelect={(template) => applyTemplate(template.id)} 

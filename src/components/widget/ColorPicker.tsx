@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -14,6 +14,7 @@ interface ColorPickerProps {
 
 const ColorPicker = ({ id, label, value, onChange }: ColorPickerProps) => {
   const [tempColor, setTempColor] = useState(value);
+  const [isOpen, setIsOpen] = useState(false);
   
   // Define a list of preset colors
   const presetColors = [
@@ -31,17 +32,38 @@ const ColorPicker = ({ id, label, value, onChange }: ColorPickerProps) => {
   const handleColorSelect = (color: string) => {
     setTempColor(color);
     onChange(color);
+    // Add a brief delay before closing the popover for better UX
+    setTimeout(() => setIsOpen(false), 200);
   };
+
+  // Try to use the EyeDropper API if available in the browser
+  const handleEyeDropper = useCallback(async () => {
+    try {
+      // @ts-ignore - EyeDropper is not yet in all TypeScript definitions
+      const eyeDropper = new window.EyeDropper();
+      const result = await eyeDropper.open();
+      setTempColor(result.sRGBHex);
+      onChange(result.sRGBHex);
+    } catch (e) {
+      console.log('EyeDropper not supported or user canceled');
+    }
+  }, [onChange]);
+
+  // Check if the EyeDropper API is available
+  const isEyeDropperSupported = typeof window !== 'undefined' && 'EyeDropper' in window;
 
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
       <div className="flex space-x-2">
-        <Popover>
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <button
-              className="h-9 w-9 rounded-md border flex-shrink-0 cursor-pointer overflow-hidden relative"
-              style={{ backgroundColor: value }}
+              className="h-9 w-9 rounded-md border flex-shrink-0 cursor-pointer overflow-hidden relative transition-all duration-200 hover:scale-105 hover:shadow-md"
+              style={{ 
+                backgroundColor: value,
+                boxShadow: `0 2px 8px ${value}40`
+              }}
               aria-label="Pick a color"
             >
               <div className="absolute inset-0 grid place-items-center opacity-0 hover:opacity-100 bg-black/20">
@@ -49,7 +71,7 @@ const ColorPicker = ({ id, label, value, onChange }: ColorPickerProps) => {
               </div>
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-3">
+          <PopoverContent className="w-64 p-3 animate-in zoom-in-50 duration-200">
             <div className="space-y-3">
               <div>
                 <Label>Custom Color</Label>
@@ -67,6 +89,17 @@ const ColorPicker = ({ id, label, value, onChange }: ColorPickerProps) => {
                     className="flex-1"
                     placeholder="#RRGGBB"
                   />
+                  {isEyeDropperSupported && (
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={handleEyeDropper}
+                      className="aspect-square" 
+                      title="Pick color from screen"
+                    >
+                      <Palette className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
               <div>
@@ -75,8 +108,11 @@ const ColorPicker = ({ id, label, value, onChange }: ColorPickerProps) => {
                   {presetColors.map((color) => (
                     <button
                       key={color}
-                      className="w-8 h-8 rounded-full relative flex items-center justify-center border"
-                      style={{ backgroundColor: color }}
+                      className="w-8 h-8 rounded-full relative flex items-center justify-center border transition-all duration-200 hover:scale-110 hover:shadow-md"
+                      style={{ 
+                        backgroundColor: color,
+                        boxShadow: color.toLowerCase() === value.toLowerCase() ? `0 2px 8px ${color}80` : 'none' 
+                      }}
                       onClick={() => handleColorSelect(color)}
                       aria-label={`Select color ${color}`}
                     >

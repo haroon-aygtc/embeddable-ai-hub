@@ -131,21 +131,38 @@ export const useWidgetState = () => {
 
   const generateEmbedCode = (): string => {
     // Create a more detailed embed code with all relevant settings
+    const scriptBaseUrl = "https://ai-chat-widget.example.com/widget.js";
+    
+    // Format settings as HTML attributes for the script tag
+    const configAttrs = Object.entries({
+      "primary-color": settings.primaryColor,
+      "secondary-color": settings.secondaryColor,
+      "widget-title": settings.title,
+      "widget-subtitle": settings.subtitle,
+      "welcome-message": settings.welcomeMessage,
+      "bot-name": settings.botName,
+      "position": settings.position,
+      "size": settings.size,
+      "show-branding": settings.showBranding,
+      "auto-open": settings.autoOpen,
+      "time-delay": settings.timeDelay ? settings.timeDelaySeconds : 0,
+      "scroll-percentage": settings.scrollPercentage ? settings.scrollPercentageValue : 0,
+      "exit-intent": settings.exitIntent,
+      "sound-notifications": settings.soundNotifications,
+      "browser-notifications": settings.browserNotifications,
+      "bubble-notifications": settings.bubbleNotificationBadge,
+      "mobile-optimization": settings.mobileOptimization,
+      "persistent-sessions": settings.persistentSessions,
+      "gdpr-compliance": settings.gdprCompliance,
+      "language": settings.language,
+    }).map(([key, value]) => `data-${key}="${value}"`).join("\n  ");
+
     return `<!-- AI Chat Widget by AI Chat Hub -->
-<script src="https://ai-chat-widget.example.com/widget.js" 
-  data-primary-color="${settings.primaryColor}"
-  data-secondary-color="${settings.secondaryColor}"
-  data-title="${settings.title}"
-  data-subtitle="${settings.subtitle}"
-  data-welcome-message="${settings.welcomeMessage}"
-  data-bot-name="${settings.botName}"
-  data-position="${settings.position}"
-  data-size="${settings.size}"
-  data-show-branding="${settings.showBranding}"
-  data-auto-open="${settings.autoOpen}"
-  data-mobile-optimization="${settings.mobileOptimization}"
-  data-persistent-sessions="${settings.persistentSessions}"
-  data-language="${settings.language}"
+<script 
+  src="${scriptBaseUrl}" 
+  id="ai-chat-widget"
+  ${configAttrs}
+  async
 ></script>`;
   };
 
@@ -187,6 +204,26 @@ export const useWidgetState = () => {
       });
     }
   };
+  
+  // Function to handle file upload for importing settings
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result;
+      if (typeof content === 'string') {
+        importWidgetSettings(content);
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset the file input
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
 
   useEffect(() => {
     // This will cause the active tab to be highlighted properly
@@ -206,6 +243,7 @@ export const useWidgetState = () => {
     handleCopyCode,
     generateEmbedCode,
     exportWidgetSettings,
-    importWidgetSettings
+    importWidgetSettings,
+    handleFileImport
   };
 };

@@ -28,10 +28,16 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasNotification, setHasNotification] = useState(false);
+  const [showPopupHint, setShowPopupHint] = useState(false);
   
   // Reset state when props change to refresh the preview
   useEffect(() => {
     setIsOpen(false);
+    
+    // Display a hint popup briefly when colors change
+    setShowPopupHint(true);
+    setTimeout(() => setShowPopupHint(false), 1500);
+    
     // Simulate notification after 2 seconds if widget is closed
     const timer = setTimeout(() => {
       if (!isOpen) {
@@ -51,6 +57,8 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
     background: `linear-gradient(45deg, ${primaryColor}, ${secondaryColor})`,
     width: `${size}px`,
     height: `${size}px`,
+    boxShadow: `0 4px 12px ${primaryColor}80`,
+    transition: "all 0.3s ease"
   };
 
   // Determine position classes
@@ -72,8 +80,18 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
 
   return (
     <div className="ai-widget-container relative w-full h-full">
+      {/* Color change hint popup */}
+      {showPopupHint && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg animate-in fade-in zoom-in-95 duration-300 z-50">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full" style={{ background: primaryColor }}></div>
+            <span className="text-sm font-medium">Colors updated</span>
+          </div>
+        </div>
+      )}
+      
       {isOpen && (
-        <div className={`absolute ${positionClasses.widget} w-72 h-96 shadow-lg`}>
+        <div className={`absolute ${positionClasses.widget} w-72 h-96 shadow-lg animate-in zoom-in-95 slide-in-from-bottom-5 duration-200`}>
           <ChatPreview
             title={title}
             subtitle={subtitle}
@@ -101,7 +119,10 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
         
         {/* Notification badge */}
         {hasNotification && !isOpen && (
-          <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full border-2 border-white"></span>
+          <span 
+            className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full border-2 border-white animate-pulse"
+            title="New message"
+          ></span>
         )}
       </div>
     </div>
