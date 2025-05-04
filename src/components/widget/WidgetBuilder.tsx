@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,8 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Toggle } from "@/components/ui/toggle";
+import { useToast } from "@/components/ui/use-toast";
 
 import {
   MessageSquare,
@@ -21,7 +21,9 @@ import {
   Image,
   Bell,
   FolderOpen,
-  PlusCircle
+  PlusCircle,
+  Copy,
+  Check
 } from "lucide-react";
 import WidgetPreview from "./WidgetPreview";
 
@@ -40,6 +42,10 @@ const WidgetBuilder = () => {
   
   // Tab state
   const [activeTab, setActiveTab] = useState("appearance");
+  // Copy state
+  const [copied, setCopied] = useState(false);
+
+  const { toast } = useToast();
 
   // Widget template presets
   const applyTemplate = (template: string) => {
@@ -81,6 +87,27 @@ const WidgetBuilder = () => {
       data-show-branding="${showBranding}"
     ></script>`;
   };
+
+  // Handle copy to clipboard
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(generateEmbedCode());
+    setCopied(true);
+    
+    toast({
+      title: "Code copied to clipboard",
+      description: "You can now paste it into your website."
+    });
+    
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  useEffect(() => {
+    // This will cause the active tab to be highlighted properly
+    const tabEl = document.querySelector(`[data-state="active"][role="tab"][value="${activeTab}"]`);
+    if (tabEl) {
+      tabEl.setAttribute('aria-selected', 'true');
+    }
+  }, [activeTab]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -136,7 +163,7 @@ const WidgetBuilder = () => {
         </Card>
         
         {/* Configuration Tabs */}
-        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-4 mb-4">
             <TabsTrigger value="appearance">
               <Palette className="h-4 w-4 mr-2" />
@@ -210,7 +237,7 @@ const WidgetBuilder = () => {
                   <div className="space-y-2">
                     <Label>Widget Position</Label>
                     <RadioGroup 
-                      defaultValue={position}
+                      value={position}
                       onValueChange={setPosition}
                       className="grid grid-cols-2 gap-4"
                     >
@@ -503,9 +530,19 @@ const WidgetBuilder = () => {
                     <Button 
                       className="absolute top-2 right-2" 
                       size="sm" 
-                      onClick={() => navigator.clipboard.writeText(generateEmbedCode())}
+                      onClick={handleCopyCode}
                     >
-                      Copy
+                      {copied ? (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy
+                        </>
+                      )}
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -589,6 +626,8 @@ const WidgetBuilder = () => {
                   welcomeMessage={welcomeMessage}
                   botName={botName}
                   avatar={avatar}
+                  size={size}
+                  position={position}
                 />
               </div>
             </div>

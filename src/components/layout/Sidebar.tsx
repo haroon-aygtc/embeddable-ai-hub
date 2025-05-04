@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -55,6 +54,7 @@ const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
+    
     <div 
       className={`h-screen bg-sidebar border-r border-border flex flex-col transition-all duration-300 ${
         collapsed ? 'w-16' : 'w-64'

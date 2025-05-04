@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageSquare, X } from "lucide-react";
 import ChatPreview from "@/components/chat/ChatPreview";
 
@@ -11,6 +11,8 @@ interface WidgetPreviewProps {
   welcomeMessage?: string;
   botName?: string;
   avatar?: string;
+  size?: number;
+  position?: string;
 }
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({
@@ -21,8 +23,15 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   welcomeMessage = "Hello! 👋 How can I help you today?",
   botName = "AI Assistant",
   avatar,
+  size = 60,
+  position = "bottom-right",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Reset state when props change to refresh the preview
+  useEffect(() => {
+    setIsOpen(false);
+  }, [primaryColor, secondaryColor, title, subtitle, welcomeMessage, botName, avatar, size, position]);
   
   const toggleChat = () => {
     setIsOpen(!isOpen);
@@ -30,12 +39,31 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
 
   const buttonStyle = {
     background: `linear-gradient(45deg, ${primaryColor}, ${secondaryColor})`,
+    width: `${size}px`,
+    height: `${size}px`,
   };
+
+  // Determine position classes
+  const getPositionClasses = () => {
+    switch (position) {
+      case "bottom-left":
+        return { button: "bottom-0 left-0", widget: "bottom-16 left-0" };
+      case "top-right":
+        return { button: "top-0 right-0", widget: "top-16 right-0" };
+      case "top-left":
+        return { button: "top-0 left-0", widget: "top-16 left-0" };
+      case "bottom-right":
+      default:
+        return { button: "bottom-0 right-0", widget: "bottom-16 right-0" };
+    }
+  };
+
+  const positionClasses = getPositionClasses();
 
   return (
     <div className="ai-widget-container relative w-full h-full">
       {isOpen && (
-        <div className="absolute bottom-16 right-0 w-80 h-96">
+        <div className={`absolute ${positionClasses.widget} w-80 h-96 shadow-lg`}>
           <ChatPreview
             title={title}
             subtitle={subtitle}
@@ -51,7 +79,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
       )}
       
       <div 
-        className="ai-widget-button absolute bottom-0 right-0 w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-pointer animate-fade-in z-10 transition-all hover:scale-105"
+        className={`ai-widget-button absolute ${positionClasses.button} rounded-full flex items-center justify-center shadow-lg cursor-pointer animate-fade-in z-10 transition-all hover:scale-105`}
         style={buttonStyle}
         onClick={toggleChat}
       >

@@ -1,22 +1,50 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MessageSquare, Mail, Lock, Github, Twitter } from "lucide-react";
+import { login } from "../../backend/api/auth";
+import { useToast } from "@/components/ui/use-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt with:", { email, password, rememberMe });
-    // Login functionality would be implemented here with authentication system
+    setIsLoading(true);
+
+    try {
+      const response = await login({ email, password, rememberMe });
+      
+      // Store token and user info in localStorage or state management solution
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      toast({
+        title: "Login successful",
+        description: `Welcome back, ${response.user.name}!`,
+      });
+      
+      // Redirect to dashboard
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "Invalid email or password",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -91,8 +119,8 @@ const LoginPage = () => {
                   </Label>
                 </div>
                 
-                <Button type="submit" className="w-full">
-                  Sign In
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </CardContent>

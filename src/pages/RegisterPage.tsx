@@ -1,23 +1,55 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { MessageSquare, Mail, Lock, User, Github, Twitter } from "lucide-react";
+import { MessageSquare, User, Mail, Lock, Github, Twitter } from "lucide-react";
+import { register } from "../../backend/api/auth";
+import { useToast } from "@/components/ui/use-toast";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registration attempt with:", { name, email, password, agreeTerms });
-    // Registration functionality would be implemented here with authentication system
+    setIsLoading(true);
+
+    try {
+      const response = await register({
+        name,
+        email,
+        password,
+        passwordConfirmation
+      });
+      
+      // Store token and user info in localStorage or state management solution
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      toast({
+        title: "Account created successfully",
+        description: `Welcome to AI Chat Hub, ${response.user.name}!`,
+      });
+      
+      // Redirect to dashboard
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: error instanceof Error ? error.message : "Failed to create account",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,7 +63,7 @@ const RegisterPage = () => {
             </div>
             <h1 className="text-3xl font-bold tracking-tight">Create an account</h1>
             <p className="text-muted-foreground mt-2">
-              Sign up to get started with AI Chat Hub
+              Start managing your AI chat experience
             </p>
           </div>
 
@@ -39,7 +71,7 @@ const RegisterPage = () => {
             <CardHeader>
               <CardTitle>Sign Up</CardTitle>
               <CardDescription>
-                Enter your details to create your account
+                Enter your information to create an account
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -50,7 +82,6 @@ const RegisterPage = () => {
                     <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
                       id="name" 
-                      type="text" 
                       placeholder="John Doe" 
                       className="pl-10"
                       value={name}
@@ -59,7 +90,7 @@ const RegisterPage = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -90,32 +121,26 @@ const RegisterPage = () => {
                       required 
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Password must be at least 8 characters long with letters, numbers, and special characters.
-                  </p>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="terms" 
-                    checked={agreeTerms}
-                    onCheckedChange={(checked) => setAgreeTerms(!!checked)}
-                    required
-                  />
-                  <Label htmlFor="terms" className="text-sm font-normal">
-                    I agree to the{" "}
-                    <Link to="/terms" className="text-primary hover:underline">
-                      Terms of Service
-                    </Link>{" "}
-                    and{" "}
-                    <Link to="/privacy" className="text-primary hover:underline">
-                      Privacy Policy
-                    </Link>
-                  </Label>
+                <div className="space-y-2">
+                  <Label htmlFor="passwordConfirmation">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      id="passwordConfirmation" 
+                      type="password" 
+                      placeholder="••••••••" 
+                      className="pl-10"
+                      value={passwordConfirmation}
+                      onChange={(e) => setPasswordConfirmation(e.target.value)}
+                      required 
+                    />
+                  </div>
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={!agreeTerms}>
-                  Create Account
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Creating account..." : "Create Account"}
                 </Button>
               </form>
             </CardContent>
@@ -159,10 +184,10 @@ const RegisterPage = () => {
         <div className="relative z-20 flex flex-col items-center justify-center p-12 text-center">
           <div className="bg-white/10 backdrop-blur-lg p-8 rounded-lg shadow-lg border border-white/20 max-w-md">
             <h2 className="text-2xl font-bold text-white mb-4">
-              Join Our AI Community
+              Powerful AI Chat Management
             </h2>
             <p className="text-white/90 mb-6">
-              Start building intelligent chatbots that scale with your business and provide 24/7 support for your customers.
+              Create, customize, and deploy AI chat widgets with our intuitive platform. No coding required.
             </p>
             <div className="flex justify-center space-x-2">
               <div className="bg-white/20 h-2 w-2 rounded-full"></div>

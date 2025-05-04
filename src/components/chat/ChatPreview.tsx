@@ -1,167 +1,175 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { X, Minus, ChevronDown, ChevronUp, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { Loader2, Minimize2, ArrowUp, X } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 interface Message {
   id: string;
+  role: 'user' | 'bot';
   content: string;
-  sender: "user" | "bot";
   timestamp: Date;
 }
 
 interface ChatPreviewProps {
-  title?: string;
-  subtitle?: string;
-  primaryColor?: string;
-  secondaryColor?: string;
-  botName?: string;
-  welcomeMessage?: string;
+  title: string;
+  subtitle: string;
+  primaryColor: string;
+  secondaryColor: string;
+  botName: string;
+  welcomeMessage: string;
   avatar?: string;
-  onClose?: () => void;
-  onMinimize?: () => void;
+  onClose: () => void;
+  onMinimize: () => void;
 }
 
 const ChatPreview: React.FC<ChatPreviewProps> = ({
-  title = "AI Chat Assistant",
-  subtitle = "We typically reply in a few minutes",
-  primaryColor = "#4a4dd4",
-  secondaryColor = "#6370e1",
-  botName = "AI Assistant",
-  welcomeMessage = "Hello! 👋 How can I help you today?",
-  avatar = "",
+  title,
+  subtitle,
+  primaryColor,
+  secondaryColor,
+  botName,
+  welcomeMessage,
+  avatar,
   onClose,
   onMinimize,
 }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [messageInput, setMessageInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'bot',
+      content: welcomeMessage,
+      timestamp: new Date(),
+    },
+  ]);
   
-  useEffect(() => {
-    // Add welcome message
-    setMessages([
-      {
-        id: "welcome",
-        content: welcomeMessage,
-        sender: "bot",
-        timestamp: new Date(),
-      },
-    ]);
-  }, [welcomeMessage]);
-
-  const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
+  const [inputValue, setInputValue] = useState('');
+  
+  const headerStyle = {
+    background: `linear-gradient(45deg, ${primaryColor}, ${secondaryColor})`,
+  };
+  
+  const botInitials = botName
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase();
+  
+  const sendMessage = () => {
+    if (!inputValue.trim()) return;
     
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: messageInput,
-      sender: "user",
+      role: 'user',
+      content: inputValue.trim(),
       timestamp: new Date(),
     };
     
-    setMessages((prev) => [...prev, userMessage]);
-    setMessageInput("");
-    setIsTyping(true);
+    setMessages([...messages, userMessage]);
+    setInputValue('');
     
-    // Simulate bot response after delay
+    // Simulate bot response after a short delay
     setTimeout(() => {
-      const botMessage: Message = {
+      const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I'm an AI assistant here to help you. This is a preview of how the chat widget will look to your users.",
-        sender: "bot",
+        role: 'bot',
+        content: `Thank you for your message! This is a simulated response from ${botName}.`,
         timestamp: new Date(),
       };
       
-      setMessages((prev) => [...prev, botMessage]);
-      setIsTyping(false);
-    }, 1500);
+      setMessages(prev => [...prev, botResponse]);
+    }, 1000);
   };
-
-  const headerStyle = {
-    background: `linear-gradient(45deg, ${primaryColor}, ${secondaryColor})`,
+  
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
   };
 
   return (
-    <div className="ai-widget-popup flex flex-col w-full h-full rounded-lg overflow-hidden shadow-lg border border-border">
-      {/* Chat Header */}
-      <div 
-        className="p-4 text-white flex items-start justify-between"
-        style={headerStyle}
-      >
+    <div className="flex flex-col border border-gray-200 rounded-lg shadow-lg overflow-hidden h-full bg-white dark:bg-gray-800 dark:border-gray-700">
+      {/* Chat header */}
+      <div style={headerStyle} className="text-white p-4 flex items-center justify-between">
         <div>
-          <h3 className="font-semibold text-lg">{title}</h3>
+          <h3 className="font-medium">{title}</h3>
           <p className="text-sm opacity-90">{subtitle}</p>
         </div>
-        <div className="flex gap-1">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-white hover:bg-white/20" 
-            onClick={onMinimize}
-          >
-            <Minimize2 className="h-4 w-4" />
+        <div className="flex items-center space-x-2">
+          <Button variant="ghost" size="icon" className="text-white hover:bg-white/20" onClick={onMinimize}>
+            <Minus className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-white hover:bg-white/20" 
-            onClick={onClose}
-          >
+          <Button variant="ghost" size="icon" className="text-white hover:bg-white/20" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
       </div>
       
-      {/* Chat Messages */}
-      <ScrollArea className="flex-1 p-4 bg-zinc-50">
-        <div className="flex flex-col gap-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`p-3 rounded-lg max-w-[80%] ${
-                message.sender === "user" 
-                  ? "ml-auto bg-primary text-primary-foreground" 
-                  : "mr-auto bg-muted"
+      {/* Messages area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
+        {messages.map(message => (
+          <div 
+            key={message.id}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            {message.role === 'bot' && (
+              <Avatar className="h-8 w-8 mr-2">
+                {avatar ? 
+                  <AvatarImage src={avatar} alt={botName} /> :
+                  <AvatarFallback>{botInitials}</AvatarFallback>
+                }
+              </Avatar>
+            )}
+            <div 
+              className={`py-2 px-3 rounded-lg max-w-[80%] ${
+                message.role === 'user' 
+                  ? `bg-primary text-white` 
+                  : 'bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700'
               }`}
             >
               {message.content}
-            </div>
-          ))}
-          
-          {isTyping && (
-            <div className="p-3 rounded-lg max-w-[80%] mr-auto bg-muted">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></span>
-                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-75"></span>
-                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-150"></span>
+              <div 
+                className={`text-[10px] mt-1 ${
+                  message.role === 'user' ? 'text-white/70' : 'text-gray-400'
+                }`}
+              >
+                {new Intl.DateTimeFormat('en-US', { 
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  hour12: true 
+                }).format(message.timestamp)}
               </div>
             </div>
-          )}
-        </div>
-      </ScrollArea>
+          </div>
+        ))}
+      </div>
       
-      {/* Chat Input */}
-      <div className="p-4 border-t border-border bg-white">
-        <div className="flex gap-2">
+      {/* Input area */}
+      <div className="p-3 border-t dark:border-gray-700">
+        <div className="flex items-center space-x-2">
           <Input
             placeholder="Type your message..."
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSendMessage();
-            }}
             className="flex-1"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
           />
           <Button 
-            size="icon" 
-            onClick={handleSendMessage}
+            onClick={sendMessage} 
             style={{ backgroundColor: primaryColor }}
+            className="h-9 w-9 p-0"
           >
-            <ArrowUp className="h-4 w-4" />
+            <Send className="h-4 w-4" />
           </Button>
+        </div>
+        
+        <Separator className="my-2" />
+        
+        <div className="flex items-center justify-center">
+          <span className="text-xs text-gray-400">Powered by AI Chat Hub</span>
         </div>
       </div>
     </div>
