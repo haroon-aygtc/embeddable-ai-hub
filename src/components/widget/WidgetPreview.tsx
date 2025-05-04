@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { MessageSquare, X } from "lucide-react";
+import { MessageSquare, X, Send } from "lucide-react";
 import ChatPreview from "@/components/chat/ChatPreview";
 
 interface WidgetPreviewProps {
@@ -27,14 +27,24 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   position = "bottom-right",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasNotification, setHasNotification] = useState(false);
   
   // Reset state when props change to refresh the preview
   useEffect(() => {
     setIsOpen(false);
+    // Simulate notification after 2 seconds if widget is closed
+    const timer = setTimeout(() => {
+      if (!isOpen) {
+        setHasNotification(true);
+      }
+    }, 2000);
+    
+    return () => clearTimeout(timer);
   }, [primaryColor, secondaryColor, title, subtitle, welcomeMessage, botName, avatar, size, position]);
   
   const toggleChat = () => {
     setIsOpen(!isOpen);
+    setHasNotification(false);
   };
 
   const buttonStyle = {
@@ -87,6 +97,11 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
           <X className="h-6 w-6 text-white" />
         ) : (
           <MessageSquare className="h-6 w-6 text-white" />
+        )}
+        
+        {/* Notification badge */}
+        {hasNotification && !isOpen && (
+          <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full border-2 border-white"></span>
         )}
       </div>
     </div>
