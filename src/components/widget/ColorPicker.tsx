@@ -3,6 +3,7 @@ import React, { useState, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { Palette, Check } from "lucide-react";
 
 interface ColorPickerProps {

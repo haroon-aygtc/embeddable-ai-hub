@@ -2,39 +2,12 @@
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { widgetTemplates } from "./WidgetTemplates";
+import { WidgetSettings } from "./types/widgetTypes";
+import { getDefaultSettings } from "./utils/defaultSettings";
+import { useImportExport } from "./utils/importExport";
+import { generateEmbedCode } from "./utils/embedCode";
 
-export interface WidgetSettings {
-  // Appearance
-  primaryColor: string;
-  secondaryColor: string;
-  position: string;
-  size: number;
-  showBranding: boolean;
-
-  // Content
-  title: string;
-  subtitle: string;
-  botName: string;
-  welcomeMessage: string;
-  avatar: string;
-
-  // Behavior
-  autoOpen: boolean;
-  timeDelay: boolean;
-  timeDelaySeconds: number;
-  scrollPercentage: boolean;
-  scrollPercentageValue: number;
-  exitIntent: boolean;
-  soundNotifications: boolean;
-  browserNotifications: boolean;
-  bubbleNotificationBadge: boolean;
-
-  // Advanced
-  mobileOptimization: boolean;
-  persistentSessions: boolean;
-  gdprCompliance: boolean;
-  language: string;
-}
+export type { WidgetSettings };
 
 export const useWidgetState = () => {
   const [activeTab, setActiveTab] = useState("appearance");
@@ -52,40 +25,11 @@ export const useWidgetState = () => {
       }
     }
     
-    return {
-      // Default settings
-      // Appearance
-      primaryColor: "#4a4dd4",
-      secondaryColor: "#6370e1",
-      position: "bottom-right", 
-      size: 60,
-      showBranding: true,
-      
-      // Content
-      title: "AI Chat Assistant",
-      subtitle: "We typically reply in a few minutes",
-      botName: "AI Assistant",
-      welcomeMessage: "Hello! 👋 How can I help you today?",
-      avatar: "",
-      
-      // Behavior
-      autoOpen: false,
-      timeDelay: false,
-      timeDelaySeconds: 5,
-      scrollPercentage: false,
-      scrollPercentageValue: 50,
-      exitIntent: false,
-      soundNotifications: false,
-      browserNotifications: false,
-      bubbleNotificationBadge: true,
-      
-      // Advanced
-      mobileOptimization: true,
-      persistentSessions: true,
-      gdprCompliance: false,
-      language: "en"
-    };
+    return getDefaultSettings();
   });
+
+  // Import/export functionality
+  const { exportWidgetSettings, handleFileImport } = useImportExport(settings, setSettings);
 
   // Save settings to localStorage when they change
   useEffect(() => {
@@ -118,7 +62,7 @@ export const useWidgetState = () => {
   };
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(generateEmbedCode());
+    navigator.clipboard.writeText(generateEmbedCode(settings));
     setCopied(true);
     
     toast({
@@ -127,102 +71,6 @@ export const useWidgetState = () => {
     });
     
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const generateEmbedCode = (): string => {
-    // Create a more detailed embed code with all relevant settings
-    const scriptBaseUrl = "https://ai-chat-widget.example.com/widget.js";
-    
-    // Format settings as HTML attributes for the script tag
-    const configAttrs = Object.entries({
-      "primary-color": settings.primaryColor,
-      "secondary-color": settings.secondaryColor,
-      "widget-title": settings.title,
-      "widget-subtitle": settings.subtitle,
-      "welcome-message": settings.welcomeMessage,
-      "bot-name": settings.botName,
-      "position": settings.position,
-      "size": settings.size,
-      "show-branding": settings.showBranding,
-      "auto-open": settings.autoOpen,
-      "time-delay": settings.timeDelay ? settings.timeDelaySeconds : 0,
-      "scroll-percentage": settings.scrollPercentage ? settings.scrollPercentageValue : 0,
-      "exit-intent": settings.exitIntent,
-      "sound-notifications": settings.soundNotifications,
-      "browser-notifications": settings.browserNotifications,
-      "bubble-notifications": settings.bubbleNotificationBadge,
-      "mobile-optimization": settings.mobileOptimization,
-      "persistent-sessions": settings.persistentSessions,
-      "gdpr-compliance": settings.gdprCompliance,
-      "language": settings.language,
-    }).map(([key, value]) => `data-${key}="${value}"`).join("\n  ");
-
-    return `<!-- AI Chat Widget by AI Chat Hub -->
-<script 
-  src="${scriptBaseUrl}" 
-  id="ai-chat-widget"
-  ${configAttrs}
-  async
-></script>`;
-  };
-
-  // Function to export widget settings as JSON
-  const exportWidgetSettings = () => {
-    const dataStr = JSON.stringify(settings, null, 2);
-    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
-    
-    const exportFileDefaultName = `widget-settings-${new Date().toISOString().slice(0, 10)}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    
-    toast({
-      title: "Settings exported successfully",
-      description: "Your widget configuration has been saved as a JSON file."
-    });
-  };
-  
-  // Function to import widget settings from JSON file
-  const importWidgetSettings = (jsonString: string) => {
-    try {
-      const importedSettings = JSON.parse(jsonString) as WidgetSettings;
-      setSettings(importedSettings);
-      
-      toast({
-        title: "Settings imported successfully",
-        description: "Your widget has been updated with the imported configuration."
-      });
-    } catch (error) {
-      console.error("Failed to import settings:", error);
-      
-      toast({
-        title: "Import failed",
-        description: "There was an error importing your settings. Please check the file format.",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  // Function to handle file upload for importing settings
-  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target?.result;
-      if (typeof content === 'string') {
-        importWidgetSettings(content);
-      }
-    };
-    reader.readAsText(file);
-    
-    // Reset the file input
-    if (event.target) {
-      event.target.value = '';
-    }
   };
 
   useEffect(() => {
@@ -241,9 +89,12 @@ export const useWidgetState = () => {
     applyTemplate,
     copied,
     handleCopyCode,
-    generateEmbedCode,
+    generateEmbedCode: () => generateEmbedCode(settings),
     exportWidgetSettings,
-    importWidgetSettings,
+    importWidgetSettings: (jsonString: string) => {
+      const { importWidgetSettings } = useImportExport(settings, setSettings);
+      importWidgetSettings(jsonString);
+    },
     handleFileImport
   };
 };
