@@ -113,7 +113,7 @@ const WidgetBuilder = () => {
                 language: settings.language,
                 embedCode: generateEmbedCode()
               }}
-              onUpdate={updateSetting}
+              onUpdate={(key, value) => updateSetting(key as any, value)}
               onCopyCode={handleCopyCode}
               copied={copied}
             />

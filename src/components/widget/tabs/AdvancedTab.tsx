@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clipboard, Code, FileInput, Globe } from "lucide-react";
+import { Clipboard, Code, Globe } from "lucide-react";
 
 export interface AdvancedSettings {
   mobileOptimization: boolean;

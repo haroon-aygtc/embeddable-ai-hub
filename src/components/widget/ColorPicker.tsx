@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { EyeDropper, Check } from "lucide-react";
+import { Palette, Check } from "lucide-react";
 
 interface ColorPickerProps {
   id: string;
@@ -45,7 +45,7 @@ const ColorPicker = ({ id, label, value, onChange }: ColorPickerProps) => {
               aria-label="Pick a color"
             >
               <div className="absolute inset-0 grid place-items-center opacity-0 hover:opacity-100 bg-black/20">
-                <EyeDropper className="h-4 w-4 text-white" />
+                <Palette className="h-4 w-4 text-white" />
               </div>
             </button>
           </PopoverTrigger>
