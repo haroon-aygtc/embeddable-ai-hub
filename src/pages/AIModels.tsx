@@ -1,19 +1,13 @@
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Brain, Plus, Zap, Settings2, Sliders } from "lucide-react";
 import { AIModel, AIModelFormValues } from "@/components/ai/types/aiTypes";
 import { defaultModels } from "@/components/ai/utils/aiModelDefaults";
-import { AIModelCard } from "@/components/ai/AIModelCard";
 import { AIModelForm } from "@/components/ai/AIModelForm";
+import { AIModelList } from "@/components/ai/AIModelList";
+import { AIModelListHeader } from "@/components/ai/AIModelListHeader";
+import { AIAdvancedConfig } from "@/components/ai/AIAdvancedConfig";
 
 const AIModels = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -66,8 +60,10 @@ const AIModels = () => {
       const newModel: AIModel = {
         id: Date.now().toString(),
         ...data,
+        modelType: data.modelType as AIModel["modelType"],
         status: data.status || "inactive",
         isDefault: data.isDefault || false,
+        capabilities: data.capabilities,
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -150,6 +146,11 @@ const AIModels = () => {
       setOpenConfigDialog(true);
     }
   };
+
+  const handleOpenAddDialog = () => {
+    setEditingModel(null);
+    setOpenConfigDialog(true);
+  };
   
   return (
     <div className="space-y-6">
@@ -160,172 +161,27 @@ const AIModels = () => {
         </p>
       </div>
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
-          <TabsList>
-            <TabsTrigger value="all">All Models</TabsTrigger>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="inactive">Inactive</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        
-        <div className="flex gap-2 w-full sm:w-auto">
-          <Input 
-            placeholder="Search models..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full sm:w-auto max-w-[300px]"
-          />
-          <Button onClick={() => {
-            setEditingModel(null);
-            setOpenConfigDialog(true);
-          }}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Model
-          </Button>
-        </div>
-      </div>
+      <AIModelListHeader
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onAddNewModel={handleOpenAddDialog}
+      />
       
-      {filteredModels.length === 0 ? (
-        <div className="text-center p-8 border rounded-lg bg-background">
-          <Brain className="mx-auto h-12 w-12 text-muted-foreground" />
-          <h3 className="mt-4 text-lg font-medium">No AI models found</h3>
-          <p className="mt-2 text-muted-foreground">
-            {searchQuery 
-              ? "Try adjusting your search query"
-              : activeTab !== "all"
-                ? `No ${activeTab} models found. Try switching tabs or add a new model.`
-                : "Get started by adding your first AI model."}
-          </p>
-          <Button 
-            className="mt-4"
-            onClick={() => {
-              setEditingModel(null);
-              setOpenConfigDialog(true);
-            }}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Model
-          </Button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredModels.map(model => (
-            <AIModelCard
-              key={model.id}
-              model={model}
-              onConfigure={handleConfigure}
-              onDelete={handleDelete}
-              onDuplicate={handleDuplicate}
-              onToggleDefault={handleToggleDefault}
-              onToggleStatus={handleToggleStatus}
-            />
-          ))}
-          
-          <div className="border-2 border-dashed rounded-lg flex flex-col items-center justify-center p-6 text-center h-full">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Zap className="h-6 w-6 text-primary" />
-            </div>
-            <h3 className="text-lg font-medium mb-1">Add New AI Model</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Connect additional AI models to enhance your chat capabilities
-            </p>
-            <Button onClick={() => {
-              setEditingModel(null);
-              setOpenConfigDialog(true);
-            }}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Model
-            </Button>
-          </div>
-        </div>
-      )}
+      <AIModelList
+        models={filteredModels}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onAddNewModel={handleOpenAddDialog}
+        onConfigure={handleConfigure}
+        onDelete={handleDelete}
+        onDuplicate={handleDuplicate}
+        onToggleDefault={handleToggleDefault}
+        onToggleStatus={handleToggleStatus}
+      />
       
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">AI Model Configuration</h3>
-        <Card>
-          <CardHeader>
-            <CardTitle>Advanced Configuration</CardTitle>
-            <CardDescription>
-              Fine-tune how AI models are used in your chat system
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h4 className="font-medium">Model Routing</h4>
-                <div className="border rounded-md p-4 space-y-2">
-                  <Label>Default AI Model</Label>
-                  <Select defaultValue={models.find(m => m.isDefault)?.id || ""}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {models.filter(m => m.status === 'active').map(model => (
-                        <SelectItem key={model.id} value={model.id}>{model.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="border rounded-md p-4 space-y-2">
-                  <Label>Fallback Model</Label>
-                  <Select defaultValue="">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a fallback model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {models.filter(m => m.status === 'active' && !m.isDefault).map(model => (
-                        <SelectItem key={model.id} value={model.id}>{model.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h4 className="font-medium">Response Enhancement</h4>
-                <div className="border rounded-md p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Format responses with headings and bullet points</Label>
-                    <Input type="checkbox" className="w-4 h-4" defaultChecked />
-                  </div>
-                </div>
-                
-                <div className="border rounded-md p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Add follow-up suggestions after responses</Label>
-                    <Input type="checkbox" className="w-4 h-4" defaultChecked />
-                  </div>
-                </div>
-                
-                <div className="border rounded-md p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Apply brand personality to responses</Label>
-                    <Input type="checkbox" className="w-4 h-4" defaultChecked />
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <h4 className="font-medium">System Prompt</h4>
-              <Textarea 
-                className="min-h-[150px]"
-                placeholder="Enter a system prompt that will guide the AI's behavior and responses"
-                defaultValue="You are a helpful assistant for our company. Respond in a friendly, professional manner. Always be concise and helpful. If you don't know something, just say you don't know instead of making up information."
-              />
-              
-              <div className="flex justify-end">
-                <Button onClick={() => toast.success("Configuration saved successfully")}>
-                  <Sliders className="mr-2 h-4 w-4" />
-                  Save Configuration
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <AIAdvancedConfig models={models} />
       
       <Dialog open={openConfigDialog} onOpenChange={setOpenConfigDialog}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">

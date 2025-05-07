@@ -1,5 +1,5 @@
 
-import { AIModel } from "../types/aiTypes";
+import { AIModel, AIModelStatus } from "../types/aiTypes";
 
 export const defaultModels: AIModel[] = [
   {

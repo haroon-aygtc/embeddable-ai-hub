@@ -223,7 +223,7 @@ export const AIModelCard = ({
                   <label className="text-sm font-medium flex items-center gap-2">
                     Response 
                     {testResult.success ? (
-                      <Badge variant="success" className="bg-green-500">Success</Badge>
+                      <Badge variant="default" className="bg-green-500">Success</Badge>
                     ) : (
                       <Badge variant="destructive">Failed</Badge>
                     )}

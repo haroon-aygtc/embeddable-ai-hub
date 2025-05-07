@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
-import { AIModelFormValues } from "./types/aiTypes";
+import { AIModelFormValues, AIModelStatus } from "./types/aiTypes";
 import { providerOptions, modelTypeOptions, capabilityOptions, getDefaultModelFormValues } from "./utils/aiModelDefaults";
 import { CheckIcon, PlusCircle, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
