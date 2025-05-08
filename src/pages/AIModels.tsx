@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { AIModel, AIModelFormValues } from "@/components/ai/types/aiTypes";
+import { AIModel, AIModelFormValues, AIModelType, AIModelStatus } from "@/components/ai/types/aiTypes";
 import { defaultModels } from "@/components/ai/utils/aiModelDefaults";
 import { AIModelForm } from "@/components/ai/AIModelForm";
 import { AIModelList } from "@/components/ai/AIModelList";
@@ -39,6 +39,8 @@ const AIModels = () => {
           ? { 
               ...model, 
               ...data,
+              modelType: data.modelType as AIModelType, // Fix type error
+              status: data.status as AIModelStatus, // Fix type error
               updatedAt: new Date()
             } 
           : model
@@ -60,8 +62,8 @@ const AIModels = () => {
       const newModel: AIModel = {
         id: Date.now().toString(),
         ...data,
-        modelType: data.modelType as AIModel["modelType"],
-        status: data.status || "inactive",
+        modelType: data.modelType as AIModelType, // Fix type error
+        status: (data.status || "inactive") as AIModelStatus, // Fix type error
         isDefault: data.isDefault || false,
         capabilities: data.capabilities,
         createdAt: new Date(),
