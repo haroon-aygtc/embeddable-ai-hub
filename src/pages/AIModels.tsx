@@ -39,8 +39,9 @@ const AIModels = () => {
           ? { 
               ...model, 
               ...data,
-              modelType: data.modelType as AIModelType, // Fix type error
-              status: data.status as AIModelStatus, // Fix type error
+              // Ensure correct type casting
+              modelType: data.modelType as AIModelType,
+              status: data.status as AIModelStatus,
               updatedAt: new Date()
             } 
           : model
@@ -62,8 +63,9 @@ const AIModels = () => {
       const newModel: AIModel = {
         id: Date.now().toString(),
         ...data,
-        modelType: data.modelType as AIModelType, // Fix type error
-        status: (data.status || "inactive") as AIModelStatus, // Fix type error
+        // Ensure correct type casting 
+        modelType: data.modelType as AIModelType,
+        status: (data.status || "inactive") as AIModelStatus,
         isDefault: data.isDefault || false,
         capabilities: data.capabilities,
         createdAt: new Date(),

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
-import { AIModelFormValues } from "./types/aiTypes";
+import { AIModelFormValues, AIModelType, AIModelStatus } from "./types/aiTypes";
 import { getDefaultModelFormValues } from "./utils/aiModelDefaults";
 import { aiModelFormSchema, AIModelFormSchema } from "./form/AIModelFormSchema";
 import { AIModelBasicInfo } from "./form/AIModelBasicInfo";
@@ -42,10 +42,22 @@ export const AIModelForm = ({
   });
 
   const handleSubmit = (data: AIModelFormSchema) => {
-    onSubmit({
-      ...data,
+    // Ensure required fields are present before submitting
+    const formData: AIModelFormValues & { capabilities: string[] } = {
+      name: data.name,
+      provider: data.provider,
+      description: data.description,
+      apiKey: data.apiKey,
+      baseUrl: data.baseUrl,
+      maxTokens: data.maxTokens,
+      temperature: data.temperature,
+      modelType: data.modelType,
+      isDefault: data.isDefault || false,
+      status: data.status as AIModelStatus,
       capabilities: selectedCapabilities
-    });
+    };
+    
+    onSubmit(formData);
   };
 
   return (

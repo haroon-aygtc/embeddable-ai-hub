@@ -1,5 +1,6 @@
 
 import { z } from "zod";
+import { AIModelStatus, AIModelType } from "../types/aiTypes";
 
 export const aiModelFormSchema = z.object({
   name: z.string().min(2, { message: "Model name is required" }),
