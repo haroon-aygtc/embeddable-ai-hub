@@ -7,7 +7,7 @@ This directory contains the Laravel backend code for the AI Chat Hub application
 
 - `app/` - Main application code
   - `Models/` - Laravel Eloquent models
-  - `Controllers/` - API Controllers
+  - `Http/Controllers/API/` - API Controllers
   - `Services/` - Business logic services
   - `Repositories/` - Data access layer
   - `Middleware/` - Request middleware
@@ -26,30 +26,9 @@ The backend provides RESTful API endpoints for the following features:
 - Prompt Templates
 - Analytics & Reporting
 
-## Mock API (Development Only)
-
-During frontend development, mock API services are available in the `backend/api` directory:
-
-```typescript
-// Import the mock API functions
-import { login, register, getCurrentUser } from '../backend/api';
-
-// Use them as if they were real API calls
-const handleLogin = async (credentials) => {
-  try {
-    const response = await login(credentials);
-    // Handle successful login
-  } catch (error) {
-    // Handle error
-  }
-};
-```
-
-When the real Laravel backend is implemented, you'll only need to update the import paths to point to the real API service.
-
 ## Installation
 
-To set up the Laravel backend (when implemented):
+To set up the Laravel backend:
 
 1. Clone the repository
 2. Navigate to the backend directory
@@ -62,4 +41,12 @@ To set up the Laravel backend (when implemented):
 
 ## Available API Endpoints
 
-See `structure.md` for a complete list of planned API endpoints.
+### Follow-ups
+- `GET /api/follow-ups` - List all follow-up flows
+- `GET /api/follow-ups/{id}` - Get specific follow-up flow
+- `POST /api/follow-ups` - Create new follow-up flow
+- `PUT /api/follow-ups/{id}` - Update follow-up flow
+- `DELETE /api/follow-ups/{id}` - Delete follow-up flow
+- `POST /api/follow-ups/{id}/nodes` - Add node to follow-up flow
+- `PUT /api/follow-ups/{id}/nodes/{nodeId}` - Update node
+- `DELETE /api/follow-ups/{id}/nodes/{nodeId}` - Delete node
