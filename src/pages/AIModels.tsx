@@ -132,7 +132,8 @@ const AIModels = () => {
       model.id === modelId 
         ? { 
             ...model, 
-            status: model.status === 'active' ? 'inactive' : 'active' 
+            // Fix the type error by properly casting to AIModelStatus
+            status: model.status === 'active' ? ('inactive' as AIModelStatus) : ('active' as AIModelStatus)
           } 
         : model
     );
