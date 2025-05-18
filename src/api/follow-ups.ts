@@ -1,8 +1,7 @@
 /**
  * API service for follow-up flows
  */
-import { API_BASE_URL, ApiResponse } from './index';
-import { FollowUpFlow, FollowUpNode } from "@/components/follow-up/types/followUpTypes";
+import { API_BASE_URL, ApiResponse, FollowUpFlow, FollowUpNode } from './types';
 
 /**
  * Get all follow-up flows

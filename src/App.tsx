@@ -1,55 +1,51 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import AppLayout from "./components/layout/AppLayout";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import WidgetPage from "./pages/WidgetPage";
-import AIModels from "./pages/AIModels";
-import ChatManagement from "./pages/ChatManagement";
-import PromptTemplates from "./pages/PromptTemplates";
-import KnowledgeBase from "./pages/KnowledgeBase";
-import UserManagement from "./pages/UserManagement";
-import FollowUpBuilder from "./pages/FollowUpBuilder";
-import BrandingManager from "./pages/BrandingManager";
-import SystemSettings from "./pages/SystemSettings";
-import MultiTenantManager from "./pages/MultiTenantManager";
-import NotFound from "./pages/NotFound";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import RolesPermissions from "./pages/RolesPermissions";
+import { Routes, Route } from 'react-router-dom';
+import AppLayout from './components/layout/AppLayout';
+import Dashboard from './pages/Dashboard';
+import AIModels from './pages/AIModels';
+import WidgetPage from './pages/WidgetPage';
+import KnowledgeBase from './pages/KnowledgeBase';
+import PromptTemplates from './pages/PromptTemplates';
+import ChatManagement from './pages/ChatManagement';
+import UserManagement from './pages/UserManagement';
+import RolesPermissions from './pages/RolesPermissions';
+import BrandingManager from './pages/BrandingManager';
+import MultiTenantManager from './pages/MultiTenantManager';
+import SystemSettings from './pages/SystemSettings';
+import FollowUpManager from './pages/FollowUpManager';
+import NotFound from './pages/NotFound';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import Index from './pages/Index';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <Toaster />
-    <Sonner />
-    <BrowserRouter>
-      <Routes>
+function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      
+      <Route element={<AppLayout />}>
         <Route path="/" element={<Index />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/widget" element={<WidgetPage />} />
-          <Route path="/ai-models" element={<AIModels />} />
-          <Route path="/chat" element={<ChatManagement />} />
-          <Route path="/prompts" element={<PromptTemplates />} />
-          <Route path="/knowledge" element={<KnowledgeBase />} />
-          <Route path="/users" element={<UserManagement />} />
-          <Route path="/roles" element={<RolesPermissions />} />
-          <Route path="/follow-ups" element={<FollowUpBuilder />} />
-          <Route path="/branding" element={<BrandingManager />} />
-          <Route path="/settings" element={<SystemSettings />} />
-          <Route path="/tenants" element={<MultiTenantManager />} />
-        </Route>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/ai-models" element={<AIModels />} />
+        <Route path="/widget" element={<WidgetPage />} />
+        <Route path="/knowledge" element={<KnowledgeBase />} />
+        <Route path="/prompts" element={<PromptTemplates />} />
+        <Route path="/chats" element={<ChatManagement />} />
+        <Route path="/users" element={<UserManagement />} />
+        <Route path="/roles" element={<RolesPermissions />} />
+        <Route path="/branding" element={<BrandingManager />} />
+        <Route path="/tenants" element={<MultiTenantManager />} />
+        <Route path="/settings" element={<SystemSettings />} />
+        
+        {/* Follow-Up Manager Routes */}
+        <Route path="/follow-ups" element={<FollowUpManager />} />
+        <Route path="/follow-ups/:id" element={<FollowUpManager />} />
+        
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+      </Route>
+    </Routes>
+  );
+}
 
 export default App;

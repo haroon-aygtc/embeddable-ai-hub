@@ -34,3 +34,28 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     next: string | null;
   };
 }
+
+/**
+ * Follow-Up Flow interface
+ */
+export interface FollowUpFlow {
+  id: string;
+  name: string;
+  description: string;
+  status: "active" | "inactive" | "draft";
+  nodes: FollowUpNode[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Follow-Up Node interface
+ */
+export interface FollowUpNode {
+  id: string;
+  type: "email" | "task" | "conditional";
+  content: string;
+  delay: number;
+  delayUnit: "minutes" | "hours" | "days";
+  conditions: any[];
+}
