@@ -1,14 +1,95 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { AIModel, AIModelFormValues, AIModelType, AIModelStatus } from "../types/aiTypes";
-import { defaultModels } from "../utils/aiModelDefaults";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { 
+  AIModel, 
+  fetchAIModels, 
+  createAIModel, 
+  updateAIModel, 
+  deleteAIModel,
+  toggleAIModelDefault,
+  toggleAIModelStatus
+} from "@/api/ai-models";
 
 export const useAIModels = () => {
-  const [models, setModels] = useState<AIModel[]>(defaultModels);
   const [editingModel, setEditingModel] = useState<AIModel | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  
+  const queryClient = useQueryClient();
+  
+  // Fetch AI models
+  const { data: models = [], isLoading, error } = useQuery({
+    queryKey: ['aiModels'],
+    queryFn: fetchAIModels
+  });
+  
+  // Create AI model mutation
+  const createMutation = useMutation({
+    mutationFn: createAIModel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aiModels'] });
+      toast.success("AI model created successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to create AI model");
+      console.error(error);
+    }
+  });
+  
+  // Update AI model mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string, payload: any }) => 
+      updateAIModel(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aiModels'] });
+      toast.success("AI model updated successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to update AI model");
+      console.error(error);
+    }
+  });
+  
+  // Delete AI model mutation
+  const deleteMutation = useMutation({
+    mutationFn: deleteAIModel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aiModels'] });
+      toast.success("AI model deleted successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete AI model");
+      console.error(error);
+    }
+  });
+  
+  // Toggle default status mutation
+  const toggleDefaultMutation = useMutation({
+    mutationFn: toggleAIModelDefault,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aiModels'] });
+      toast.success("Default AI model updated");
+    },
+    onError: (error) => {
+      toast.error("Failed to update default status");
+      console.error(error);
+    }
+  });
+  
+  // Toggle active status mutation
+  const toggleStatusMutation = useMutation({
+    mutationFn: toggleAIModelStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aiModels'] });
+      toast.success("AI model status updated");
+    },
+    onError: (error) => {
+      toast.error("Failed to update model status");
+      console.error(error);
+    }
+  });
   
   // Filter models based on the active tab and search query
   const filteredModels = models.filter(model => {
@@ -25,116 +106,46 @@ export const useAIModels = () => {
     return matchesTab && matchesSearch;
   });
   
-  const handleAddModel = (data: AIModelFormValues & { capabilities: string[] }) => {
+  const handleAddModel = (data: any) => {
     if (editingModel) {
       // Update existing model
-      const updatedModels = models.map(model => 
-        model.id === editingModel.id 
-          ? { 
-              ...model, 
-              ...data,
-              // Ensure correct type casting
-              modelType: data.modelType as AIModelType,
-              status: data.status as AIModelStatus,
-              updatedAt: new Date()
-            } 
-          : model
-      );
-      
-      // If setting this model as default, unset others
-      if (data.isDefault) {
-        for (let i = 0; i < updatedModels.length; i++) {
-          if (updatedModels[i].id !== editingModel.id) {
-            updatedModels[i].isDefault = false;
-          }
-        }
-      }
-      
-      setModels(updatedModels);
-      toast.success(`Model "${data.name}" updated successfully`);
+      updateMutation.mutate({ id: editingModel.id, payload: data });
     } else {
       // Create new model
-      const newModel: AIModel = {
-        id: Date.now().toString(),
-        ...data,
-        // Ensure correct type casting 
-        modelType: data.modelType as AIModelType,
-        status: (data.status || "inactive") as AIModelStatus,
-        isDefault: data.isDefault || false,
-        capabilities: data.capabilities,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      // If setting this model as default, unset others
-      let updatedModels = [...models];
-      if (newModel.isDefault) {
-        updatedModels = updatedModels.map(model => ({
-          ...model,
-          isDefault: false
-        }));
-      }
-      
-      setModels([...updatedModels, newModel]);
-      toast.success(`Model "${data.name}" added successfully`);
+      createMutation.mutate(data);
     }
     
     setEditingModel(null);
   };
 
   const handleDelete = (modelId: string) => {
-    const modelToDelete = models.find(model => model.id === modelId);
-    if (modelToDelete?.isDefault) {
-      toast.error("Cannot delete the default model. Set another model as default first.");
-      return;
-    }
-    
-    setModels(models.filter(model => model.id !== modelId));
-    toast.success("Model deleted successfully");
+    deleteMutation.mutate(modelId);
   };
 
   const handleDuplicate = (modelId: string) => {
     const modelToDuplicate = models.find(model => model.id === modelId);
     if (!modelToDuplicate) return;
     
-    const newModel: AIModel = {
+    const newModelData = {
       ...modelToDuplicate,
-      id: Date.now().toString(),
       name: `${modelToDuplicate.name} (Copy)`,
-      isDefault: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      is_default: false
     };
     
-    setModels([...models, newModel]);
-    toast.success("Model duplicated successfully");
+    // Remove id and timestamps
+    delete newModelData.id;
+    delete newModelData.created_at;
+    delete newModelData.updated_at;
+    
+    createMutation.mutate(newModelData);
   };
 
   const handleToggleDefault = (modelId: string) => {
-    const updatedModels = models.map(model => ({
-      ...model,
-      isDefault: model.id === modelId
-    }));
-    
-    setModels(updatedModels);
-    toast.success("Default model updated");
+    toggleDefaultMutation.mutate(modelId);
   };
 
   const handleToggleStatus = (modelId: string) => {
-    const updatedModels = models.map(model => 
-      model.id === modelId 
-        ? { 
-            ...model, 
-            // Fix the type error by properly casting to AIModelStatus
-            status: model.status === 'active' ? ('inactive' as AIModelStatus) : ('active' as AIModelStatus)
-          } 
-        : model
-    );
-    
-    setModels(updatedModels);
-    
-    const modelStatus = updatedModels.find(m => m.id === modelId)?.status;
-    toast.success(`Model ${modelStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
+    toggleStatusMutation.mutate(modelId);
   };
   
   const handleConfigure = (modelId: string) => {
@@ -147,6 +158,8 @@ export const useAIModels = () => {
   return {
     models,
     filteredModels,
+    isLoading,
+    error,
     editingModel,
     setEditingModel,
     searchQuery,

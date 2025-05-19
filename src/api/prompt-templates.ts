@@ -1,5 +1,5 @@
 
-import { apiClient } from './index';
+import apiClient from './client';
 
 export interface PromptTemplate {
   id: number;

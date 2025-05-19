@@ -7,6 +7,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AIModelController;
 use App\Http\Controllers\API\FollowUpController;
 use App\Http\Controllers\API\PromptTemplateController;
+use App\Http\Controllers\API\WidgetController;
 
 /*
 |--------------------------------------------------------------------------
