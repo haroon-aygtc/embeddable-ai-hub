@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AIModelController;
 use App\Http\Controllers\API\FollowUpController;
+use App\Http\Controllers\API\PromptTemplateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/follow-ups/{id}/nodes', [FollowUpController::class, 'addNode']);
     Route::put('/follow-ups/{id}/nodes/{nodeId}', [FollowUpController::class, 'updateNode']);
     Route::delete('/follow-ups/{id}/nodes/{nodeId}', [FollowUpController::class, 'deleteNode']);
+    
+    // Prompt templates routes
+    Route::apiResource('prompt-templates', PromptTemplateController::class);
+    Route::get('/prompt-templates/category/{category}', [PromptTemplateController::class, 'getByCategory']);
 });
 
 // Public API endpoint for widget embed code
