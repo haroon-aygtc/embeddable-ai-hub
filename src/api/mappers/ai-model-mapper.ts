@@ -1,6 +1,6 @@
 
 import { AIModel as ApiAIModel } from '@/api/ai-models';
-import { AIModel as UIAIModel, AIModelStatus, AIModelType } from '@/components/ai/types/aiTypes';
+import { AIModel as UIAIModel, AIModelStatus, AIModelType, AIModelFormValues } from '@/components/ai/types/aiTypes';
 
 /**
  * Maps API AI model data to UI format
@@ -27,21 +27,23 @@ export function mapApiToUiModel(apiModel: ApiAIModel): UIAIModel {
 /**
  * Maps UI AI model data to API format
  */
-export function mapUiToApiModel(uiModel: Partial<UIAIModel>): Partial<ApiAIModel> {
-  return {
-    ...(uiModel.id && { id: uiModel.id }),
-    ...(uiModel.name && { name: uiModel.name }),
-    ...(uiModel.provider && { provider: uiModel.provider }),
-    ...(uiModel.description && { description: uiModel.description }),
-    ...(uiModel.apiKey !== undefined && { api_key: uiModel.apiKey }),
-    ...(uiModel.baseUrl !== undefined && { base_url: uiModel.baseUrl }),
-    ...(uiModel.modelType && { model_type: reverseMapModelType(uiModel.modelType) }),
-    ...(uiModel.maxTokens !== undefined && { max_tokens: uiModel.maxTokens }),
-    ...(uiModel.temperature !== undefined && { temperature: uiModel.temperature }),
-    ...(uiModel.isDefault !== undefined && { is_default: uiModel.isDefault }),
-    ...(uiModel.status && { status: reverseMapStatus(uiModel.status) }),
-    ...(uiModel.capabilities && { capabilities: uiModel.capabilities }),
-  };
+export function mapUiToApiModel(uiModel: Partial<UIAIModel | AIModelFormValues>): Partial<ApiAIModel> {
+  const result: Partial<ApiAIModel> = {};
+  
+  if (uiModel.id) result.id = uiModel.id;
+  if (uiModel.name) result.name = uiModel.name;
+  if (uiModel.provider) result.provider = uiModel.provider;
+  if (uiModel.description) result.description = uiModel.description;
+  if (uiModel.apiKey !== undefined) result.api_key = uiModel.apiKey;
+  if (uiModel.baseUrl !== undefined) result.base_url = uiModel.baseUrl;
+  if (uiModel.modelType) result.model_type = reverseMapModelType(uiModel.modelType);
+  if (uiModel.maxTokens !== undefined) result.max_tokens = uiModel.maxTokens;
+  if (uiModel.temperature !== undefined) result.temperature = uiModel.temperature;
+  if (uiModel.isDefault !== undefined) result.is_default = uiModel.isDefault;
+  if (uiModel.status) result.status = reverseMapStatus(uiModel.status as AIModelStatus);
+  if ('capabilities' in uiModel && uiModel.capabilities) result.capabilities = uiModel.capabilities;
+  
+  return result;
 }
 
 /**
@@ -65,7 +67,7 @@ function mapModelType(apiType: string): AIModelType {
 /**
  * Maps UI model type to API model type
  */
-function reverseMapModelType(uiType: AIModelType): string {
+function reverseMapModelType(uiType: AIModelType): 'chat' | 'completion' | 'image' | 'embedding' {
   switch (uiType) {
     case 'text-generation':
       return 'chat';
@@ -74,9 +76,9 @@ function reverseMapModelType(uiType: AIModelType): string {
     case 'embedding':
       return 'embedding';
     case 'text-to-speech':
-      return 'tts';
+      return 'chat'; // Default to chat
     case 'speech-to-text':
-      return 'stt';
+      return 'chat'; // Default to chat
     default:
       return 'chat';
   }

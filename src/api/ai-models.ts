@@ -59,19 +59,7 @@ export const fetchAIModel = async (id: string): Promise<UIAIModel> => {
 };
 
 export const createAIModel = async (payload: AIModelFormValues & { capabilities: string[] }): Promise<UIAIModel> => {
-  const apiPayload = {
-    name: payload.name,
-    provider: payload.provider,
-    description: payload.description,
-    api_key: payload.apiKey,
-    base_url: payload.baseUrl,
-    model_type: payload.modelType,
-    max_tokens: payload.maxTokens,
-    temperature: payload.temperature,
-    is_default: payload.isDefault || false,
-    status: payload.status || 'testing',
-    capabilities: payload.capabilities || [],
-  };
+  const apiPayload = mapUiToApiModel(payload);
   
   const response = await apiClient.post('/models', apiPayload);
   return mapApiToUiModel(response.data.data);
