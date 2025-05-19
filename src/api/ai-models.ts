@@ -1,5 +1,7 @@
 
 import apiClient from './client';
+import { mapApiToUiModel, mapUiToApiModel } from './mappers/ai-model-mapper';
+import { AIModel as UIAIModel, AIModelFormValues } from '@/components/ai/types/aiTypes';
 
 export interface AIModel {
   id: string;
@@ -46,36 +48,51 @@ export interface UpdateAIModelPayload {
   capabilities?: string[];
 }
 
-export const fetchAIModels = async (): Promise<AIModel[]> => {
+export const fetchAIModels = async (): Promise<UIAIModel[]> => {
   const response = await apiClient.get('/models');
-  return response.data.data;
+  return response.data.data.map(mapApiToUiModel);
 };
 
-export const fetchAIModel = async (id: string): Promise<AIModel> => {
+export const fetchAIModel = async (id: string): Promise<UIAIModel> => {
   const response = await apiClient.get(`/models/${id}`);
-  return response.data.data;
+  return mapApiToUiModel(response.data.data);
 };
 
-export const createAIModel = async (payload: CreateAIModelPayload): Promise<AIModel> => {
-  const response = await apiClient.post('/models', payload);
-  return response.data.data;
+export const createAIModel = async (payload: AIModelFormValues & { capabilities: string[] }): Promise<UIAIModel> => {
+  const apiPayload = {
+    name: payload.name,
+    provider: payload.provider,
+    description: payload.description,
+    api_key: payload.apiKey,
+    base_url: payload.baseUrl,
+    model_type: payload.modelType,
+    max_tokens: payload.maxTokens,
+    temperature: payload.temperature,
+    is_default: payload.isDefault || false,
+    status: payload.status || 'testing',
+    capabilities: payload.capabilities || [],
+  };
+  
+  const response = await apiClient.post('/models', apiPayload);
+  return mapApiToUiModel(response.data.data);
 };
 
-export const updateAIModel = async (id: string, payload: UpdateAIModelPayload): Promise<AIModel> => {
-  const response = await apiClient.put(`/models/${id}`, payload);
-  return response.data.data;
+export const updateAIModel = async (id: string, payload: Partial<AIModelFormValues & { capabilities: string[] }>): Promise<UIAIModel> => {
+  const apiPayload = mapUiToApiModel(payload);
+  const response = await apiClient.put(`/models/${id}`, apiPayload);
+  return mapApiToUiModel(response.data.data);
 };
 
 export const deleteAIModel = async (id: string): Promise<void> => {
   await apiClient.delete(`/models/${id}`);
 };
 
-export const toggleAIModelDefault = async (id: string): Promise<AIModel> => {
+export const toggleAIModelDefault = async (id: string): Promise<UIAIModel> => {
   const response = await apiClient.put(`/models/${id}/toggle-default`);
-  return response.data.data;
+  return mapApiToUiModel(response.data.data);
 };
 
-export const toggleAIModelStatus = async (id: string): Promise<AIModel> => {
+export const toggleAIModelStatus = async (id: string): Promise<UIAIModel> => {
   const response = await apiClient.put(`/models/${id}/toggle-status`);
-  return response.data.data;
+  return mapApiToUiModel(response.data.data);
 };

@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
-  AIModel, 
   fetchAIModels, 
   createAIModel, 
   updateAIModel, 
@@ -11,6 +10,7 @@ import {
   toggleAIModelDefault,
   toggleAIModelStatus
 } from "@/api/ai-models";
+import { AIModel, AIModelFormValues } from "@/components/ai/types/aiTypes";
 
 export const useAIModels = () => {
   const [editingModel, setEditingModel] = useState<AIModel | null>(null);
@@ -27,7 +27,7 @@ export const useAIModels = () => {
   
   // Create AI model mutation
   const createMutation = useMutation({
-    mutationFn: createAIModel,
+    mutationFn: (payload: AIModelFormValues & { capabilities: string[] }) => createAIModel(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aiModels'] });
       toast.success("AI model created successfully");
@@ -40,7 +40,7 @@ export const useAIModels = () => {
   
   // Update AI model mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string, payload: any }) => 
+    mutationFn: ({ id, payload }: { id: string, payload: Partial<AIModelFormValues & { capabilities: string[] }> }) => 
       updateAIModel(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aiModels'] });
@@ -106,7 +106,7 @@ export const useAIModels = () => {
     return matchesTab && matchesSearch;
   });
   
-  const handleAddModel = (data: any) => {
+  const handleAddModel = (data: AIModelFormValues & { capabilities: string[] }) => {
     if (editingModel) {
       // Update existing model
       updateMutation.mutate({ id: editingModel.id, payload: data });
@@ -126,16 +126,18 @@ export const useAIModels = () => {
     const modelToDuplicate = models.find(model => model.id === modelId);
     if (!modelToDuplicate) return;
     
-    const newModelData = {
-      ...modelToDuplicate,
+    const newModelData: AIModelFormValues & { capabilities: string[] } = {
       name: `${modelToDuplicate.name} (Copy)`,
-      is_default: false
+      provider: modelToDuplicate.provider,
+      description: modelToDuplicate.description,
+      apiKey: modelToDuplicate.apiKey,
+      baseUrl: modelToDuplicate.baseUrl,
+      modelType: modelToDuplicate.modelType,
+      maxTokens: modelToDuplicate.maxTokens,
+      temperature: modelToDuplicate.temperature,
+      status: 'testing',
+      capabilities: [...modelToDuplicate.capabilities]
     };
-    
-    // Remove id and timestamps
-    delete newModelData.id;
-    delete newModelData.created_at;
-    delete newModelData.updated_at;
     
     createMutation.mutate(newModelData);
   };
