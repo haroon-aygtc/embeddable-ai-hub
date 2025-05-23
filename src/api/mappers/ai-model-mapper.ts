@@ -1,101 +1,66 @@
 
-import { AIModel as ApiAIModel } from '@/api/ai-models';
-import { AIModel as UIAIModel, AIModelStatus, AIModelType, AIModelFormValues } from '@/components/ai/types/aiTypes';
+import { AIModel, AIModelFormValues, AIModelType, AIModelStatus } from "@/components/ai/types/aiTypes";
 
-/**
- * Maps API AI model data to UI format
- */
-export function mapApiToUiModel(apiModel: ApiAIModel): UIAIModel {
+export interface BackendAIModel {
+  id: string;
+  name: string;
+  provider: string;
+  description: string;
+  api_key?: string;
+  base_url?: string;
+  model_type: string;
+  max_tokens?: number;
+  temperature?: number;
+  is_default: boolean;
+  status: string;
+  capabilities: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export const mapBackendToFrontend = (backendModel: BackendAIModel): AIModel => {
   return {
-    id: apiModel.id,
-    name: apiModel.name,
-    provider: apiModel.provider,
-    description: apiModel.description,
-    apiKey: apiModel.api_key,
-    baseUrl: apiModel.base_url,
-    modelType: mapModelType(apiModel.model_type),
-    maxTokens: apiModel.max_tokens,
-    temperature: apiModel.temperature,
-    isDefault: apiModel.is_default,
-    status: mapStatus(apiModel.status),
-    capabilities: apiModel.capabilities || [],
-    createdAt: apiModel.created_at ? new Date(apiModel.created_at) : new Date(),
-    updatedAt: apiModel.updated_at ? new Date(apiModel.updated_at) : new Date(),
+    id: backendModel.id,
+    name: backendModel.name,
+    provider: backendModel.provider,
+    description: backendModel.description,
+    apiKey: backendModel.api_key || '',
+    baseUrl: backendModel.base_url || '',
+    modelType: backendModel.model_type as AIModelType,
+    maxTokens: backendModel.max_tokens || 4096,
+    temperature: backendModel.temperature || 0.7,
+    isDefault: backendModel.is_default,
+    status: backendModel.status as AIModelStatus,
+    capabilities: backendModel.capabilities,
+    createdAt: backendModel.created_at,
+    updatedAt: backendModel.updated_at
   };
-}
+};
 
-/**
- * Maps UI AI model data to API format
- */
-export function mapUiToApiModel(uiModel: Partial<UIAIModel | AIModelFormValues>): Partial<ApiAIModel> {
-  const result: Partial<ApiAIModel> = {};
+export const mapFrontendToBackend = (frontendModel: Partial<AIModel | AIModelFormValues>): Partial<BackendAIModel> => {
+  // Handle both AIModel (with id) and AIModelFormValues (without id)
+  const hasId = 'id' in frontendModel && frontendModel.id;
   
-  if (uiModel.id) result.id = uiModel.id;
-  if (uiModel.name) result.name = uiModel.name;
-  if (uiModel.provider) result.provider = uiModel.provider;
-  if (uiModel.description) result.description = uiModel.description;
-  if (uiModel.apiKey !== undefined) result.api_key = uiModel.apiKey;
-  if (uiModel.baseUrl !== undefined) result.base_url = uiModel.baseUrl;
-  if (uiModel.modelType) result.model_type = reverseMapModelType(uiModel.modelType);
-  if (uiModel.maxTokens !== undefined) result.max_tokens = uiModel.maxTokens;
-  if (uiModel.temperature !== undefined) result.temperature = uiModel.temperature;
-  if (uiModel.isDefault !== undefined) result.is_default = uiModel.isDefault;
-  if (uiModel.status) result.status = reverseMapStatus(uiModel.status as AIModelStatus);
-  if ('capabilities' in uiModel && uiModel.capabilities) result.capabilities = uiModel.capabilities;
-  
-  return result;
-}
+  const baseMapping: Partial<BackendAIModel> = {
+    name: frontendModel.name,
+    provider: frontendModel.provider,
+    description: frontendModel.description,
+    api_key: frontendModel.apiKey,
+    base_url: frontendModel.baseUrl,
+    model_type: frontendModel.modelType,
+    max_tokens: frontendModel.maxTokens,
+    temperature: frontendModel.temperature,
+    is_default: frontendModel.isDefault || false,
+    status: frontendModel.status,
+    capabilities: frontendModel.capabilities || []
+  };
 
-/**
- * Maps API model type to UI model type
- */
-function mapModelType(apiType: string): AIModelType {
-  switch (apiType) {
-    case 'chat':
-      return 'text-generation';
-    case 'completion':
-      return 'text-generation';
-    case 'image':
-      return 'image-generation';
-    case 'embedding':
-      return 'embedding';
-    default:
-      return 'text-generation';
+  if (hasId) {
+    return {
+      ...baseMapping,
+      id: (frontendModel as AIModel).id
+    };
   }
-}
 
-/**
- * Maps UI model type to API model type
- */
-function reverseMapModelType(uiType: AIModelType): 'chat' | 'completion' | 'image' | 'embedding' {
-  switch (uiType) {
-    case 'text-generation':
-      return 'chat';
-    case 'image-generation':
-      return 'image';
-    case 'embedding':
-      return 'embedding';
-    case 'text-to-speech':
-      return 'chat'; // Default to chat
-    case 'speech-to-text':
-      return 'chat'; // Default to chat
-    default:
-      return 'chat';
-  }
-}
-
-/**
- * Maps API status to UI status
- */
-function mapStatus(status: string): AIModelStatus {
-  if (status === 'active') return 'active';
-  if (status === 'inactive') return 'inactive';
-  return 'testing';
-}
-
-/**
- * Maps UI status to API status
- */
-function reverseMapStatus(status: AIModelStatus): string {
-  return status;
-}
+  return baseMapping;
+};
