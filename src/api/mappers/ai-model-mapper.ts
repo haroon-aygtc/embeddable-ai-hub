@@ -32,8 +32,8 @@ export const mapBackendToFrontend = (backendModel: BackendAIModel): AIModel => {
     isDefault: backendModel.is_default,
     status: backendModel.status as AIModelStatus,
     capabilities: backendModel.capabilities,
-    createdAt: backendModel.created_at,
-    updatedAt: backendModel.updated_at
+    createdAt: new Date(backendModel.created_at),
+    updatedAt: new Date(backendModel.updated_at)
   };
 };
 
@@ -64,3 +64,7 @@ export const mapFrontendToBackend = (frontendModel: Partial<AIModel | AIModelFor
 
   return baseMapping;
 };
+
+// Export with the expected names for backward compatibility
+export const mapApiToUiModel = mapBackendToFrontend;
+export const mapUiToApiModel = mapFrontendToBackend;

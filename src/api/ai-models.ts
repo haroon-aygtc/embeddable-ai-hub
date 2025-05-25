@@ -1,6 +1,6 @@
 
 import apiClient from './client';
-import { mapApiToUiModel, mapUiToApiModel } from './mappers/ai-model-mapper';
+import { mapBackendToFrontend, mapFrontendToBackend } from './mappers/ai-model-mapper';
 import { AIModel as UIAIModel, AIModelFormValues } from '@/components/ai/types/aiTypes';
 
 export interface AIModel {
@@ -50,25 +50,25 @@ export interface UpdateAIModelPayload {
 
 export const fetchAIModels = async (): Promise<UIAIModel[]> => {
   const response = await apiClient.get('/models');
-  return response.data.data.map(mapApiToUiModel);
+  return response.data.data.map(mapBackendToFrontend);
 };
 
 export const fetchAIModel = async (id: string): Promise<UIAIModel> => {
   const response = await apiClient.get(`/models/${id}`);
-  return mapApiToUiModel(response.data.data);
+  return mapBackendToFrontend(response.data.data);
 };
 
 export const createAIModel = async (payload: AIModelFormValues & { capabilities: string[] }): Promise<UIAIModel> => {
-  const apiPayload = mapUiToApiModel(payload);
+  const apiPayload = mapFrontendToBackend(payload);
   
   const response = await apiClient.post('/models', apiPayload);
-  return mapApiToUiModel(response.data.data);
+  return mapBackendToFrontend(response.data.data);
 };
 
 export const updateAIModel = async (id: string, payload: Partial<AIModelFormValues & { capabilities: string[] }>): Promise<UIAIModel> => {
-  const apiPayload = mapUiToApiModel(payload);
+  const apiPayload = mapFrontendToBackend(payload);
   const response = await apiClient.put(`/models/${id}`, apiPayload);
-  return mapApiToUiModel(response.data.data);
+  return mapBackendToFrontend(response.data.data);
 };
 
 export const deleteAIModel = async (id: string): Promise<void> => {
@@ -77,10 +77,10 @@ export const deleteAIModel = async (id: string): Promise<void> => {
 
 export const toggleAIModelDefault = async (id: string): Promise<UIAIModel> => {
   const response = await apiClient.put(`/models/${id}/toggle-default`);
-  return mapApiToUiModel(response.data.data);
+  return mapBackendToFrontend(response.data.data);
 };
 
 export const toggleAIModelStatus = async (id: string): Promise<UIAIModel> => {
   const response = await apiClient.put(`/models/${id}/toggle-status`);
-  return mapApiToUiModel(response.data.data);
+  return mapBackendToFrontend(response.data.data);
 };
