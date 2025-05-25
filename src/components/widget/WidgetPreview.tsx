@@ -79,10 +79,10 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   const positionClasses = getPositionClasses();
 
   return (
-    <div className="ai-widget-container relative w-full h-full">
+    <div className="ai-widget-container relative w-full h-full pointer-events-none">
       {/* Color change hint popup */}
       {showPopupHint && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg animate-in fade-in zoom-in-95 duration-300 z-50">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg animate-in fade-in zoom-in-95 duration-300 z-50 pointer-events-none">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ background: primaryColor }}></div>
             <span className="text-sm font-medium">Colors updated</span>
@@ -91,7 +91,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
       )}
       
       {isOpen && (
-        <div className={`absolute ${positionClasses.widget} w-72 h-96 shadow-lg animate-in zoom-in-95 slide-in-from-bottom-5 duration-200`}>
+        <div className={`absolute ${positionClasses.widget} w-72 h-96 shadow-lg animate-in zoom-in-95 slide-in-from-bottom-5 duration-200 z-40 pointer-events-auto`}>
           <ChatPreview
             title={title}
             subtitle={subtitle}
@@ -107,7 +107,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
       )}
       
       <div 
-        className={`ai-widget-button absolute ${positionClasses.button} rounded-full flex items-center justify-center shadow-lg cursor-pointer animate-fade-in z-10 transition-all hover:scale-105`}
+        className={`ai-widget-button absolute ${positionClasses.button} rounded-full flex items-center justify-center shadow-lg cursor-pointer animate-fade-in z-30 transition-all hover:scale-105 pointer-events-auto`}
         style={buttonStyle}
         onClick={toggleChat}
       >
