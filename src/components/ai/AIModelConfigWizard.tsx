@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,7 @@ import {
   Loader2
 } from "lucide-react";
 import { AIModel, AIModelFormValues } from "./types/aiTypes";
+import { AIModelSelector } from "./AIModelSelector";
 import { toast } from "sonner";
 
 interface AIModelConfigWizardProps {
@@ -67,25 +67,33 @@ const mockProviders = [
   }
 ];
 
-// Mock models data based on provider
+// Enhanced mock models data with more realistic data
 const mockModels: Record<string, any[]> = {
   openai: [
-    { id: "gpt-4", name: "GPT-4", description: "Most capable model", maxTokens: 8192, type: "text-generation" },
-    { id: "gpt-4-turbo", name: "GPT-4 Turbo", description: "Latest GPT-4 with improved performance", maxTokens: 128000, type: "text-generation" },
-    { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo", description: "Fast and efficient", maxTokens: 4096, type: "text-generation" }
+    { id: "gpt-4", name: "GPT-4", description: "Most capable model for complex tasks", maxTokens: 8192, type: "text-generation" },
+    { id: "gpt-4-turbo", name: "GPT-4 Turbo", description: "Latest GPT-4 with improved performance and larger context", maxTokens: 128000, type: "text-generation" },
+    { id: "gpt-4-vision", name: "GPT-4 Vision", description: "GPT-4 with image understanding capabilities", maxTokens: 8192, type: "multimodal" },
+    { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo", description: "Fast and efficient for most tasks", maxTokens: 4096, type: "text-generation" },
+    { id: "gpt-3.5-turbo-16k", name: "GPT-3.5 Turbo 16K", description: "Extended context length version", maxTokens: 16384, type: "text-generation" }
   ],
   anthropic: [
-    { id: "claude-3-opus", name: "Claude 3 Opus", description: "Most powerful Claude model", maxTokens: 200000, type: "text-generation" },
-    { id: "claude-3-sonnet", name: "Claude 3 Sonnet", description: "Balanced performance", maxTokens: 200000, type: "text-generation" },
-    { id: "claude-3-haiku", name: "Claude 3 Haiku", description: "Fast and lightweight", maxTokens: 200000, type: "text-generation" }
+    { id: "claude-3-opus", name: "Claude 3 Opus", description: "Most powerful Claude model for complex reasoning", maxTokens: 200000, type: "text-generation" },
+    { id: "claude-3-sonnet", name: "Claude 3 Sonnet", description: "Balanced performance and speed", maxTokens: 200000, type: "text-generation" },
+    { id: "claude-3-haiku", name: "Claude 3 Haiku", description: "Fast and lightweight for quick tasks", maxTokens: 200000, type: "text-generation" },
+    { id: "claude-2.1", name: "Claude 2.1", description: "Previous generation with improved accuracy", maxTokens: 100000, type: "text-generation" },
+    { id: "claude-2.0", name: "Claude 2.0", description: "Original Claude 2 model", maxTokens: 100000, type: "text-generation" }
   ],
   google: [
     { id: "gemini-pro", name: "Gemini Pro", description: "Advanced reasoning capabilities", maxTokens: 30720, type: "multimodal" },
-    { id: "gemini-pro-vision", name: "Gemini Pro Vision", description: "Text and image understanding", maxTokens: 30720, type: "multimodal" }
+    { id: "gemini-pro-vision", name: "Gemini Pro Vision", description: "Text and image understanding", maxTokens: 30720, type: "multimodal" },
+    { id: "gemini-ultra", name: "Gemini Ultra", description: "Most capable model for complex tasks", maxTokens: 30720, type: "multimodal" }
   ],
   meta: [
     { id: "llama-2-70b", name: "Llama 2 70B", description: "Large open-source model", maxTokens: 4096, type: "text-generation" },
-    { id: "llama-2-13b", name: "Llama 2 13B", description: "Medium open-source model", maxTokens: 4096, type: "text-generation" }
+    { id: "llama-2-13b", name: "Llama 2 13B", description: "Medium open-source model", maxTokens: 4096, type: "text-generation" },
+    { id: "llama-2-7b", name: "Llama 2 7B", description: "Smaller, faster open-source model", maxTokens: 4096, type: "text-generation" },
+    { id: "code-llama-34b", name: "Code Llama 34B", description: "Specialized for code generation", maxTokens: 4096, type: "text-generation" },
+    { id: "code-llama-13b", name: "Code Llama 13B", description: "Smaller code generation model", maxTokens: 4096, type: "text-generation" }
   ]
 };
 
@@ -419,42 +427,15 @@ export const AIModelConfigWizard = ({
           {currentStep === 2 && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                {isLoadingModels ? "Fetching available models..." : "Select a model from the available options."}
+                {isLoadingModels ? "Fetching available models..." : "Select a model from the available options below."}
               </p>
               
-              {isLoadingModels ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                  <span className="ml-2">Loading models...</span>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-4">
-                  {availableModels.map((modelData) => (
-                    <Card 
-                      key={modelData.id}
-                      className={`cursor-pointer transition-all hover:shadow-md ${
-                        selectedModel?.id === modelData.id ? "ring-2 ring-primary bg-primary/5" : ""
-                      }`}
-                      onClick={() => handleModelSelect(modelData)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{modelData.name}</h3>
-                            <p className="text-sm text-muted-foreground">{modelData.description}</p>
-                            <div className="flex gap-2 mt-2">
-                              <Badge variant="outline">
-                                {modelData.maxTokens.toLocaleString()} tokens
-                              </Badge>
-                              <Badge variant="outline">{modelData.type}</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+              <AIModelSelector
+                models={availableModels}
+                selectedModel={selectedModel}
+                onModelSelect={handleModelSelect}
+                isLoading={isLoadingModels}
+              />
             </div>
           )}
 
