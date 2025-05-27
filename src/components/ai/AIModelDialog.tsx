@@ -1,7 +1,7 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AIModel, AIModelFormValues } from "./types/aiTypes";
-import { AIModelForm } from "./AIModelForm";
+import { AIModelConfigWizard } from "./AIModelConfigWizard";
 
 interface AIModelDialogProps {
   open: boolean;
@@ -18,22 +18,14 @@ export const AIModelDialog = ({
 }: AIModelDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{editingModel ? `Configure ${editingModel.name}` : "Add New AI Model"}</DialogTitle>
-          <DialogDescription>
-            {editingModel 
-              ? "Adjust the settings for this AI model to optimize its performance."
-              : "Add a new AI model to your system by providing the required information."}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <AIModelForm
-          initialValues={editingModel || undefined}
-          onSubmit={onSubmit}
-          onCancel={() => onOpenChange(false)}
-          isEditing={!!editingModel}
-        />
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+        <div className="p-6">
+          <AIModelConfigWizard
+            model={editingModel || undefined}
+            onSave={onSubmit}
+            onCancel={() => onOpenChange(false)}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -14,7 +14,8 @@ export type AIModelType =
   | "embedding" 
   | "image-generation" 
   | "text-to-speech" 
-  | "speech-to-text";
+  | "speech-to-text"
+  | "multimodal";
 
 export type AIModelStatus = "active" | "inactive" | "testing";
 
@@ -33,6 +34,19 @@ export interface AIModel {
   capabilities: string[];
   createdAt: Date;
   updatedAt: Date;
+  // New advanced fields
+  priority?: number;
+  costPerToken?: number;
+  responseTime?: number;
+  accuracy?: number;
+  rateLimits?: {
+    requestsPerMinute?: number;
+    tokensPerMinute?: number;
+  };
+  healthStatus?: "healthy" | "degraded" | "down";
+  lastHealthCheck?: Date;
+  tags?: string[];
+  customSettings?: Record<string, any>;
 }
 
 export interface AIModelFormValues {
@@ -47,6 +61,14 @@ export interface AIModelFormValues {
   isDefault?: boolean;
   status?: AIModelStatus;
   capabilities?: string[];
+  // New fields
+  priority?: number;
+  costPerToken?: number;
+  rateLimits?: {
+    requestsPerMinute?: number;
+    tokensPerMinute?: number;
+  };
+  tags?: string[];
 }
 
 export interface AIModelStats {
@@ -55,6 +77,11 @@ export interface AIModelStats {
   errorRate: number;
   tokenUsage: number;
   lastUsed?: Date;
+  // New metrics
+  successRate: number;
+  averageCost: number;
+  totalCost: number;
+  peakUsageTime?: string;
 }
 
 export interface AIModelTestResult {
@@ -63,4 +90,28 @@ export interface AIModelTestResult {
   tokenCount: number;
   success: boolean;
   error?: string;
+  // Enhanced test results
+  cost?: number;
+  quality?: number;
+  relevance?: number;
+}
+
+export interface AIModelBenchmark {
+  id: string;
+  modelId: string;
+  testName: string;
+  score: number;
+  maxScore: number;
+  runDate: Date;
+  details?: Record<string, any>;
+}
+
+export interface AIModelUsageMetrics {
+  modelId: string;
+  date: string;
+  requests: number;
+  tokens: number;
+  cost: number;
+  averageResponseTime: number;
+  errorRate: number;
 }
