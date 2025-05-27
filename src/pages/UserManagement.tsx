@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
@@ -23,23 +23,8 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Users, UserPlus, Search, Edit, Trash, Lock, Shield, User, UsersRound } from "lucide-react";
+import { UserPlus, Edit, Trash, Lock, User } from "lucide-react";
 
 const users = [
   {
@@ -81,7 +66,7 @@ const users = [
 ];
 
 const UserManagement = () => {
-  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
 
   return (
@@ -93,7 +78,7 @@ const UserManagement = () => {
             Manage user accounts, permissions and access control
           </p>
         </div>
-        <Button onClick={() => setShowAddUserDialog(true)}>
+        <Button onClick={() => navigate("/users/create")}>
           <UserPlus className="mr-2 h-4 w-4" /> Add User
         </Button>
       </div>
@@ -170,7 +155,11 @@ const UserManagement = () => {
                       <TableCell>{user.tenant}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => navigate(`/users/edit/${user.id}`)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon">
@@ -222,80 +211,6 @@ const UserManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
-
-      <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>
-              Create a new user account with specific permissions
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="text-sm font-medium">
-                  First Name
-                </label>
-                <Input id="firstName" placeholder="John" />
-              </div>
-              <div>
-                <label htmlFor="lastName" className="text-sm font-medium">
-                  Last Name
-                </label>
-                <Input id="lastName" placeholder="Smith" />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="email" className="text-sm font-medium">
-                Email Address
-              </label>
-              <Input id="email" type="email" placeholder="john.smith@example.com" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="role" className="text-sm font-medium">
-                  User Role
-                </label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Administrator</SelectItem>
-                    <SelectItem value="editor">Editor</SelectItem>
-                    <SelectItem value="support">Support</SelectItem>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label htmlFor="tenant" className="text-sm font-medium">
-                  Tenant/Organization
-                </label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select tenant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="main">Main Organization</SelectItem>
-                    <SelectItem value="xyz">Client XYZ</SelectItem>
-                    <SelectItem value="abc">Client ABC</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddUserDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => setShowAddUserDialog(false)}>
-              Create User
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

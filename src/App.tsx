@@ -14,6 +14,8 @@ import BrandingManager from './pages/BrandingManager';
 import MultiTenantManager from './pages/MultiTenantManager';
 import SystemSettings from './pages/SystemSettings';
 import FollowUpManager from './pages/FollowUpManager';
+import CreateEditRole from './pages/CreateEditRole';
+import CreateEditUser from './pages/CreateEditUser';
 import NotFound from './pages/NotFound';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -35,7 +37,11 @@ function App() {
           <Route path="/prompts" element={<PromptTemplates />} />
           <Route path="/chats" element={<ChatManagement />} />
           <Route path="/users" element={<UserManagement />} />
+          <Route path="/users/create" element={<CreateEditUser />} />
+          <Route path="/users/edit/:id" element={<CreateEditUser />} />
           <Route path="/roles" element={<RolesPermissions />} />
+          <Route path="/roles/create" element={<CreateEditRole />} />
+          <Route path="/roles/edit/:id" element={<CreateEditRole />} />
           <Route path="/branding" element={<BrandingManager />} />
           <Route path="/tenants" element={<MultiTenantManager />} />
           <Route path="/settings" element={<SystemSettings />} />

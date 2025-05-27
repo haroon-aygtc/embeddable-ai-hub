@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Search, Plus, Shield, User, Users, Edit, Trash } from "lucide-react";
 
 // Define types for our data
@@ -95,13 +95,11 @@ const mockPermissions: Permission[] = [
 ];
 
 const RolesPermissions = () => {
+  const navigate = useNavigate();
   const [roles, setRoles] = useState<Role[]>(mockRoles);
   const [permissions, setPermissions] = useState<Permission[]>(mockPermissions);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("roles");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [currentRole, setCurrentRole] = useState<Role | null>(null);
-  const [editMode, setEditMode] = useState(false);
   
   const { toast } = useToast();
   
@@ -127,65 +125,11 @@ const RolesPermissions = () => {
     return acc;
   }, {} as Record<string, Permission[]>);
   
-  const handleCreateRole = () => {
-    setCurrentRole({
-      id: "",
-      name: "",
-      description: "",
-      permissions: [],
-      userCount: 0
-    });
-    setEditMode(false);
-    setDialogOpen(true);
-  };
-  
-  const handleEditRole = (role: Role) => {
-    setCurrentRole(role);
-    setEditMode(true);
-    setDialogOpen(true);
-  };
-  
   const handleDeleteRole = (roleId: string) => {
     setRoles(roles.filter(role => role.id !== roleId));
     toast({
       title: "Role deleted",
       description: "The role has been successfully deleted."
-    });
-  };
-  
-  const handleSaveRole = () => {
-    if (!currentRole) return;
-    
-    if (editMode) {
-      setRoles(roles.map(role => role.id === currentRole.id ? currentRole : role));
-      toast({
-        title: "Role updated",
-        description: `The ${currentRole.name} role has been updated.`
-      });
-    } else {
-      const newRole = {
-        ...currentRole,
-        id: Date.now().toString(),
-      };
-      setRoles([...roles, newRole]);
-      toast({
-        title: "Role created",
-        description: `The ${currentRole.name} role has been created.`
-      });
-    }
-    setDialogOpen(false);
-  };
-  
-  const handlePermissionToggle = (permissionId: string) => {
-    if (!currentRole) return;
-    
-    const updatedPermissions = currentRole.permissions.includes(permissionId)
-      ? currentRole.permissions.filter(id => id !== permissionId)
-      : [...currentRole.permissions, permissionId];
-    
-    setCurrentRole({
-      ...currentRole,
-      permissions: updatedPermissions
     });
   };
 
@@ -208,7 +152,7 @@ const RolesPermissions = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button onClick={handleCreateRole}>
+        <Button onClick={() => navigate("/roles/create")}>
           <Plus className="h-4 w-4 mr-2" />
           Create Role
         </Button>
@@ -274,7 +218,11 @@ const RolesPermissions = () => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="ghost" onClick={() => handleEditRole(role)}>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => navigate(`/roles/edit/${role.id}`)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       {role.name !== "Administrator" && (
@@ -332,84 +280,6 @@ const RolesPermissions = () => {
           )}
         </TabsContent>
       </Tabs>
-      
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editMode ? "Edit Role" : "Create New Role"}</DialogTitle>
-            <DialogDescription>
-              {editMode 
-                ? "Update the role details and permission assignments" 
-                : "Configure the new role and assign permissions"}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-6 py-4">
-            <div className="grid gap-3">
-              <Label htmlFor="name">Role Name</Label>
-              <Input 
-                id="name"
-                value={currentRole?.name || ""}
-                onChange={(e) => currentRole && setCurrentRole({...currentRole, name: e.target.value})}
-                placeholder="e.g., Marketing Manager"
-              />
-            </div>
-            
-            <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
-              <Input 
-                id="description"
-                value={currentRole?.description || ""}
-                onChange={(e) => currentRole && setCurrentRole({...currentRole, description: e.target.value})}
-                placeholder="Brief description of this role's purpose"
-              />
-            </div>
-            
-            <div>
-              <Label className="text-base">Permissions</Label>
-              <p className="text-sm text-muted-foreground mb-4">
-                Select which permissions to grant to this role
-              </p>
-              
-              <div className="space-y-6">
-                {Object.entries(permissionsByCategory).map(([category, perms]) => (
-                  <div key={category} className="space-y-3">
-                    <h4 className="text-sm font-medium">{category}</h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {perms.map((permission) => (
-                        <div key={permission.id} className="flex items-start space-x-2">
-                          <Checkbox 
-                            id={`permission-${permission.id}`}
-                            checked={currentRole?.permissions.includes(permission.name)}
-                            onCheckedChange={() => handlePermissionToggle(permission.name)}
-                          />
-                          <div className="grid gap-1.5">
-                            <Label 
-                              htmlFor={`permission-${permission.id}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {permission.name.replace(/_/g, ' ')}
-                            </Label>
-                            <p className="text-xs text-muted-foreground">{permission.description}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveRole} disabled={!currentRole?.name}>
-              {editMode ? "Save Changes" : "Create Role"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
